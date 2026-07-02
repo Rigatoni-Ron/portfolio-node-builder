@@ -2,9 +2,11 @@ import { Handle, Position, type NodeProps } from '@xyflow/react'
 import type { StockNode as StockNodeT } from '../../lib/types'
 import { useGraphStore } from '../../store/graphStore'
 import { TickerSelect } from '../TickerSelect'
+import { getTickerInfo } from '../../lib/tickers'
 
 export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
   const updateNodeData = useGraphStore((s) => s.updateNodeData)
+  const info = getTickerInfo(data.ticker)
 
   return (
     <div
@@ -31,6 +33,28 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
             }
           />
         </div>
+
+        {info && (
+          <div className="rounded-md bg-surface-2/60 px-2 py-1.5">
+            <div className="flex items-baseline gap-1.5">
+              <span className="truncate text-[11px] font-medium text-text-muted">
+                {info.name}
+              </span>
+              <span
+                className={`shrink-0 rounded px-1 py-px text-[9px] font-medium uppercase tracking-wider ${
+                  info.type === 'ETF'
+                    ? 'bg-accent-soft text-accent'
+                    : 'bg-surface-2 text-text-muted'
+                }`}
+              >
+                {info.type}
+              </span>
+            </div>
+            <p className="mt-0.5 text-[10px] leading-snug text-text-dim">
+              {info.description}
+            </p>
+          </div>
+        )}
 
         <label className="block">
           <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">

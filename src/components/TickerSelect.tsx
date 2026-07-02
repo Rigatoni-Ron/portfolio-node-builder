@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { TICKERS, getTickerInfo, type TickerInfo } from '../lib/tickers'
+import { TICKERS, type TickerInfo } from '../lib/tickers'
 
 type Props = {
   value: string
@@ -39,8 +39,6 @@ export function TickerSelect({ value, onChange }: Props) {
   const showCustom =
     customSymbol.length > 0 && !results.some((t) => t.symbol === customSymbol)
   const optionCount = results.length + (showCustom ? 1 : 0)
-
-  const selectedInfo = getTickerInfo(value)
 
   useEffect(() => {
     if (!open) return
@@ -108,12 +106,6 @@ export function TickerSelect({ value, onChange }: Props) {
         className="nodrag w-full rounded-md border border-border bg-surface-2 px-2 py-1.5 font-mono text-sm tracking-wider text-text outline-none focus:border-accent"
         placeholder={value ? undefined : 'Search ticker or name'}
       />
-
-      {!open && selectedInfo && (
-        <p className="mt-1 truncate text-[10px] leading-snug text-text-dim">
-          {selectedInfo.name}
-        </p>
-      )}
 
       {open && (
         <ul

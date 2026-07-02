@@ -45,31 +45,41 @@ const BUTTONS: {
   },
 ]
 
-function Group({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="pointer-events-auto flex items-center gap-1 rounded-xl border border-border bg-surface/95 p-1 shadow-lg backdrop-blur">
-      <div className="px-2 text-[10px] font-medium uppercase tracking-wider text-text-dim">
-        {label}
-      </div>
-      {children}
-    </div>
-  )
-}
+type ToolbarMode = 'add' | 'remove'
 
 export function Toolbar() {
   const addNode = useGraphStore((s) => s.addNode)
   const removeNodesByType = useGraphStore((s) => s.removeNodesByType)
   const clearGraph = useGraphStore((s) => s.clearGraph)
 
+  const [mode, setMode] = useState<ToolbarMode>('add')
+
   // "All" needs a second click within 2.5s to actually clear the canvas
   const [confirmAll, setConfirmAll] = useState(false)
   const confirmTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   useEffect(() => () => clearTimeout(confirmTimer.current), [])
 
+  const disarm = () => {
+    clearTimeout(confirmTimer.current)
+    setConfirmAll(false)
+  }
+
+  const switchMode = (m: ToolbarMode) => {
+    setMode(m)
+    disarm()
+  }
+
+  const onType = (b: (typeof BUTTONS)[number]) => {
+    if (mode === 'add') {
+      addNode(b.build(findFreePosition(useGraphStore.getState().nodes, b.type)))
+    } else {
+      removeNodesByType(b.type)
+    }
+  }
+
   const onRemoveAll = () => {
     if (confirmAll) {
-      clearTimeout(confirmTimer.current)
-      setConfirmAll(false)
+      disarm()
       clearGraph()
     } else {
       setConfirmAll(true)
@@ -78,31 +88,45 @@ export function Toolbar() {
   }
 
   return (
-    <div className="absolute left-4 top-4 z-10 flex items-center gap-2">
-      <Group label="Add">
-        {BUTTONS.map((b) => (
-          <button
-            key={b.type}
-            onClick={() =>
-              addNode(b.build(findFreePosition(useGraphStore.getState().nodes, b.type)))
-            }
-            className="rounded-lg px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-surface-2 hover:text-text"
-          >
-            {b.label}
-          </button>
-        ))}
-      </Group>
+    <div className="pointer-events-auto absolute left-4 top-4 z-10 flex items-center gap-1 rounded-xl border border-border bg-surface/95 p-1 shadow-lg backdrop-blur">
+      <div className="flex items-center gap-0.5 rounded-lg border border-border bg-surface-2 p-0.5">
+        <button
+          onClick={() => switchMode('add')}
+          className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+            mode === 'add'
+              ? 'bg-accent/20 text-accent'
+              : 'text-text-muted hover:text-text'
+          }`}
+        >
+          Add
+        </button>
+        <button
+          onClick={() => switchMode('remove')}
+          className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+            mode === 'remove'
+              ? 'bg-negative/15 text-negative'
+              : 'text-text-muted hover:text-text'
+          }`}
+        >
+          Remove
+        </button>
+      </div>
 
-      <Group label="Remove">
-        {BUTTONS.map((b) => (
-          <button
-            key={b.type}
-            onClick={() => removeNodesByType(b.type)}
-            className="rounded-lg px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-negative/10 hover:text-negative"
-          >
-            {b.label}
-          </button>
-        ))}
+      {BUTTONS.map((b) => (
+        <button
+          key={b.type}
+          onClick={() => onType(b)}
+          className={`rounded-lg px-3 py-1.5 text-xs font-medium text-text-muted transition-colors ${
+            mode === 'add'
+              ? 'hover:bg-surface-2 hover:text-text'
+              : 'hover:bg-negative/10 hover:text-negative'
+          }`}
+        >
+          {b.label}
+        </button>
+      ))}
+
+      {mode === 'remove' && (
         <button
           onClick={onRemoveAll}
           className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
@@ -113,7 +137,7 @@ export function Toolbar() {
         >
           {confirmAll ? 'Sure?' : 'All'}
         </button>
-      </Group>
+      )}
     </div>
   )
 }

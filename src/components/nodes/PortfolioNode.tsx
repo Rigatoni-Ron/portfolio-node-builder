@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
+import { Liveline, type LivelinePoint } from 'liveline'
 import type {
   PortfolioNode as PortfolioNodeT,
   StockNode,
@@ -119,6 +120,25 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
 
   const positive = (result?.totalReturnDollars ?? 0) >= 0
 
+  // Liveline anchors its right edge to the present, so shift the series to
+  // end at "now" (projections live in the future) and undo the shift in the
+  // time labels.
+  const chart = useMemo(() => {
+    const s = result?.series
+    if (!s || s.length < 2) return null
+    const toSec = (date: string) => Date.parse(date) / 1000
+    const offset = Math.floor(Date.now() / 1000) - toSec(s[s.length - 1].date)
+    const points: LivelinePoint[] = s.map((p) => ({
+      time: toSec(p.date) + offset,
+      value: p.value,
+    }))
+    return {
+      points,
+      offset,
+      span: points[points.length - 1].time - points[0].time,
+    }
+  }, [result])
+
   return (
     <div
       className={`w-72 rounded-xl border bg-surface shadow-lg transition-colors ${
@@ -191,6 +211,28 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
                   : ''}
               </div>
             </div>
+
+            {chart && (
+              <div className="nodrag nowheel h-28">
+                <Liveline
+                  data={chart.points}
+                  value={chart.points[chart.points.length - 1].value}
+                  color={positive ? '#10b981' : '#ef4444'}
+                  theme="dark"
+                  grid={false}
+                  badgeVariant="minimal"
+                  window={chart.span}
+                  loading={status === 'loading'}
+                  formatValue={fmtMoney}
+                  formatTime={(t) =>
+                    new Date((t - chart.offset) * 1000).toLocaleDateString(
+                      undefined,
+                      { month: 'short', year: '2-digit' },
+                    )
+                  }
+                />
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-2 border-t border-border pt-3">
               <div>

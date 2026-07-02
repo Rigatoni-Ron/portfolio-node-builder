@@ -3,12 +3,18 @@ import { getPriceSeries, type PriceBar, type PriceSource } from './twelveData'
 
 export type Position = { ticker: string; allocation: number }
 
+export type SeriesPoint = {
+  date: string // ISO yyyy-mm-dd
+  value: number // position/portfolio dollar value at that month
+}
+
 export type PositionResult = {
   ticker: string
   allocation: number
   endingValue: number
   returnPct: number
   source: PriceSource
+  series?: SeriesPoint[] // monthly dollar values over the window
   error?: string
 }
 
@@ -20,6 +26,7 @@ export type PortfolioResult = {
   totalReturnDollars: number
   totalReturnPct: number
   positions: PositionResult[]
+  series: SeriesPoint[] // combined monthly portfolio value
   sources: PriceSource[] // distinct sources seen
 }
 
@@ -39,6 +46,39 @@ function backtestReturn(bars: PriceBar[], years: number): number {
   const last = window[window.length - 1].close
   if (first <= 0) return 0
   return (last - first) / first
+}
+
+// Position dollar value at each month of the backtest window.
+function backtestSeries(
+  bars: PriceBar[],
+  years: number,
+  allocation: number,
+): SeriesPoint[] {
+  const window = trailingMonths(bars, years * 12)
+  const first = window[0]?.close
+  if (!first || first <= 0 || window.length < 2) return []
+  return window.map((b) => ({
+    date: b.date,
+    value: allocation * (b.close / first),
+  }))
+}
+
+// Smooth compound growth curve from allocation to the projected value.
+function projectionSeries(
+  ret: number,
+  years: number,
+  allocation: number,
+): SeriesPoint[] {
+  const months = years * 12
+  const monthlyGrowth = Math.pow(1 + ret, 1 / months)
+  const now = new Date()
+  return Array.from({ length: months + 1 }, (_, m) => {
+    const d = new Date(now.getFullYear(), now.getMonth() + m, 1)
+    return {
+      date: d.toISOString().slice(0, 10),
+      value: allocation * Math.pow(monthlyGrowth, m),
+    }
+  })
 }
 
 // Forward CAGR-based point estimate. CAGR is computed from the full 10y series.
@@ -76,6 +116,10 @@ export async function computePortfolio(
           endingValue,
           returnPct: ret * 100,
           source: series.source,
+          series:
+            mode === 'backtest'
+              ? backtestSeries(series.bars, years, p.allocation)
+              : projectionSeries(ret, years, p.allocation),
         }
       } catch (err) {
         return {
@@ -96,6 +140,24 @@ export async function computePortfolio(
   const totalReturnPct = invested > 0 ? (totalReturnDollars / invested) * 100 : 0
   const sources = Array.from(new Set(results.map((r) => r.source)))
 
+  // Combined portfolio value per month. Series are aligned from the most
+  // recent point backwards; positions without a series (errors) contribute
+  // their flat allocation to every point.
+  const withSeries = results.filter((r) => (r.series?.length ?? 0) >= 2)
+  let series: SeriesPoint[] = []
+  if (withSeries.length > 0) {
+    const len = Math.min(...withSeries.map((r) => r.series!.length))
+    const flat = invested - withSeries.reduce((s, r) => s + r.allocation, 0)
+    const refDates = withSeries[0].series!
+    series = Array.from({ length: len }, (_, k) => ({
+      date: refDates[refDates.length - len + k].date,
+      value: withSeries.reduce((s, r) => {
+        const arr = r.series!
+        return s + arr[arr.length - len + k].value
+      }, flat),
+    }))
+  }
+
   return {
     mode,
     timeframe,
@@ -104,6 +166,7 @@ export async function computePortfolio(
     totalReturnDollars,
     totalReturnPct,
     positions: results,
+    series,
     sources,
   }
 }

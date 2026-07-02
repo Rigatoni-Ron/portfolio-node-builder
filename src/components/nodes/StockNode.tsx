@@ -10,7 +10,7 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
 
   return (
     <div
-      className={`w-56 rounded-xl border bg-surface shadow-lg transition-colors ${
+      className={`w-64 rounded-xl border bg-surface shadow-lg transition-colors ${
         selected ? 'border-accent' : 'border-border'
       }`}
     >
@@ -22,18 +22,43 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
       </div>
 
       <div className="space-y-3 p-3">
-        <div>
+        <div className={data.ticker ? 'grid grid-cols-2 gap-2' : ''}>
+          <div>
+            {data.ticker && (
+              <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
+                Ticker
+              </span>
+            )}
+            <TickerSelect
+              value={data.ticker}
+              onChange={(ticker) =>
+                updateNodeData<StockNodeT['data']>(id, { ticker })
+              }
+            />
+          </div>
+
           {data.ticker && (
-            <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
-              Ticker
-            </span>
+            <label className="block">
+              <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
+                Allocation
+              </span>
+              <div className="flex items-center rounded-md border border-border bg-surface-2 focus-within:border-accent">
+                <span className="pl-2 text-sm text-text-dim">$</span>
+                <input
+                  type="number"
+                  min={0}
+                  step={100}
+                  value={data.allocation}
+                  onChange={(e) =>
+                    updateNodeData<StockNodeT['data']>(id, {
+                      allocation: Number(e.target.value) || 0,
+                    })
+                  }
+                  className="w-full bg-transparent px-2 py-1.5 text-sm text-text outline-none"
+                />
+              </div>
+            </label>
           )}
-          <TickerSelect
-            value={data.ticker}
-            onChange={(ticker) =>
-              updateNodeData<StockNodeT['data']>(id, { ticker })
-            }
-          />
         </div>
 
         {!data.ticker && (
@@ -62,29 +87,6 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
               {info.description}
             </p>
           </div>
-        )}
-
-        {data.ticker && (
-          <label className="block">
-            <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
-              Allocation (USD)
-            </span>
-            <div className="flex items-center rounded-md border border-border bg-surface-2 focus-within:border-accent">
-              <span className="pl-2 text-sm text-text-dim">$</span>
-              <input
-                type="number"
-                min={0}
-                step={100}
-                value={data.allocation}
-                onChange={(e) =>
-                  updateNodeData<StockNodeT['data']>(id, {
-                    allocation: Number(e.target.value) || 0,
-                  })
-                }
-                className="w-full bg-transparent px-2 py-1.5 text-sm text-text outline-none"
-              />
-            </div>
-          </label>
         )}
       </div>
 

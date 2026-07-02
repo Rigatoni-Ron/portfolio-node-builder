@@ -3,10 +3,10 @@ import type { XYPosition } from '@xyflow/react'
 
 type NodeKind = NonNullable<AppNode['type']>
 
-// Used until a node has been rendered and measured (matches w-56 / w-60 / w-72
+// Used until a node has been rendered and measured (matches w-64 / w-60 / w-72
 // plus typical content height).
 const FALLBACK_SIZE: Record<NodeKind, { width: number; height: number }> = {
-  stock: { width: 224, height: 215 },
+  stock: { width: 256, height: 185 },
   timeline: { width: 240, height: 185 },
   portfolio: { width: 288, height: 230 },
 }

@@ -23,9 +23,11 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
 
       <div className="space-y-3 p-3">
         <div>
-          <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
-            Ticker
-          </span>
+          {data.ticker && (
+            <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
+              Ticker
+            </span>
+          )}
           <TickerSelect
             value={data.ticker}
             onChange={(ticker) =>
@@ -33,6 +35,12 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
             }
           />
         </div>
+
+        {!data.ticker && (
+          <p className="px-1 pb-1 text-center text-[10px] leading-snug text-text-dim">
+            Search and select a stock or ETF to get started
+          </p>
+        )}
 
         {info && (
           <div className="rounded-md bg-surface-2/60 px-2 py-1.5">
@@ -56,26 +64,28 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
           </div>
         )}
 
-        <label className="block">
-          <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
-            Allocation (USD)
-          </span>
-          <div className="flex items-center rounded-md border border-border bg-surface-2 focus-within:border-accent">
-            <span className="pl-2 text-sm text-text-dim">$</span>
-            <input
-              type="number"
-              min={0}
-              step={100}
-              value={data.allocation}
-              onChange={(e) =>
-                updateNodeData<StockNodeT['data']>(id, {
-                  allocation: Number(e.target.value) || 0,
-                })
-              }
-              className="w-full bg-transparent px-2 py-1.5 text-sm text-text outline-none"
-            />
-          </div>
-        </label>
+        {data.ticker && (
+          <label className="block">
+            <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
+              Allocation (USD)
+            </span>
+            <div className="flex items-center rounded-md border border-border bg-surface-2 focus-within:border-accent">
+              <span className="pl-2 text-sm text-text-dim">$</span>
+              <input
+                type="number"
+                min={0}
+                step={100}
+                value={data.allocation}
+                onChange={(e) =>
+                  updateNodeData<StockNodeT['data']>(id, {
+                    allocation: Number(e.target.value) || 0,
+                  })
+                }
+                className="w-full bg-transparent px-2 py-1.5 text-sm text-text outline-none"
+              />
+            </div>
+          </label>
+        )}
       </div>
 
       <Handle type="source" position={Position.Right} />

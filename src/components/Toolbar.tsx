@@ -19,7 +19,7 @@ const BUTTONS: {
       id: makeId('stock'),
       type: 'stock',
       position,
-      data: { ticker: 'SPY', allocation: 1000 },
+      data: { ticker: '', allocation: 1000 },
     }),
   },
   {

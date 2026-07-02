@@ -19,6 +19,8 @@ type GraphState = {
   addNode: (node: AppNode) => void
   updateNodeData: <T extends AppNode['data']>(id: string, data: Partial<T>) => void
   removeNode: (id: string) => void
+  removeNodesByType: (type: NonNullable<AppNode['type']>) => void
+  clearGraph: () => void
   resetGraph: () => void
 }
 
@@ -84,6 +86,20 @@ export const useGraphStore = create<GraphState>()(
           nodes: get().nodes.filter((n) => n.id !== id),
           edges: get().edges.filter((e) => e.source !== id && e.target !== id),
         })
+      },
+      removeNodesByType: (type) => {
+        const removed = new Set(
+          get().nodes.filter((n) => n.type === type).map((n) => n.id),
+        )
+        set({
+          nodes: get().nodes.filter((n) => !removed.has(n.id)),
+          edges: get().edges.filter(
+            (e) => !removed.has(e.source) && !removed.has(e.target),
+          ),
+        })
+      },
+      clearGraph: () => {
+        set({ nodes: [], edges: [] })
       },
       resetGraph: () => {
         set({ nodes: initialNodes, edges: initialEdges })

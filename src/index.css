@@ -60,6 +60,14 @@ input, select, button {
   border-color: var(--color-accent);
 }
 .react-flow__controls {
+  /* xyflow theming variables — these beat the library stylesheet regardless
+     of import order, unlike overriding its rules directly */
+  --xy-controls-button-background-color: var(--color-surface);
+  --xy-controls-button-background-color-hover: var(--color-surface-2);
+  --xy-controls-button-color: var(--color-text-muted);
+  --xy-controls-button-color-hover: var(--color-text);
+  --xy-controls-button-border-color: var(--color-border);
+  --xy-controls-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 8px;

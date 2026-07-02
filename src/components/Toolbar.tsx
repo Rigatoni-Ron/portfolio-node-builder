@@ -47,10 +47,15 @@ const BUTTONS: {
 
 type ToolbarMode = 'add' | 'remove'
 
+const groupable = (n: AppNode) =>
+  !!n.selected && n.type !== 'group' && !n.parentId
+
 export function Toolbar() {
   const addNode = useGraphStore((s) => s.addNode)
   const removeNodesByType = useGraphStore((s) => s.removeNodesByType)
   const clearGraph = useGraphStore((s) => s.clearGraph)
+  const groupNodes = useGraphStore((s) => s.groupNodes)
+  const groupableCount = useGraphStore((s) => s.nodes.filter(groupable).length)
 
   const [mode, setMode] = useState<ToolbarMode>('add')
 
@@ -137,6 +142,22 @@ export function Toolbar() {
         >
           {confirmAll ? 'Sure?' : 'All'}
         </button>
+      )}
+
+      {groupableCount >= 2 && (
+        <>
+          <div className="h-5 w-px bg-border" />
+          <button
+            onClick={() =>
+              groupNodes(
+                useGraphStore.getState().nodes.filter(groupable).map((n) => n.id),
+              )
+            }
+            className="rounded-lg px-3 py-1.5 text-xs font-medium text-accent transition-colors hover:bg-accent-soft"
+          >
+            Group ({groupableCount})
+          </button>
+        </>
       )}
     </div>
   )

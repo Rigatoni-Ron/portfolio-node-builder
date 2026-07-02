@@ -9,6 +9,7 @@ const FALLBACK_SIZE: Record<NodeKind, { width: number; height: number }> = {
   stock: { width: 256, height: 185 },
   timeline: { width: 240, height: 185 },
   portfolio: { width: 288, height: 230 },
+  group: { width: 320, height: 240 },
 }
 
 // Preferred column per node type, matching the seed layout (stocks feed
@@ -17,6 +18,7 @@ const COLUMN_X: Record<NodeKind, number> = {
   stock: 80,
   timeline: 480,
   portfolio: 860,
+  group: 80, // groups are never placed via toolbar; keep the record total
 }
 
 const START_Y = 120
@@ -27,12 +29,20 @@ const MAX_COLS = 8
 
 type Rect = { x: number; y: number; width: number; height: number }
 
-function nodeRect(n: AppNode): Rect {
+function nodeRect(n: AppNode, byId: Map<string, AppNode>): Rect {
   const measured =
     n.measured?.width && n.measured?.height
       ? { width: n.measured.width, height: n.measured.height }
       : FALLBACK_SIZE[n.type ?? 'stock']
-  return { x: n.position.x, y: n.position.y, ...measured }
+  // Children of groups have parent-relative positions — resolve to absolute
+  let { x, y } = n.position
+  let parent = n.parentId ? byId.get(n.parentId) : undefined
+  while (parent) {
+    x += parent.position.x
+    y += parent.position.y
+    parent = parent.parentId ? byId.get(parent.parentId) : undefined
+  }
+  return { x, y, ...measured }
 }
 
 function overlaps(a: Rect, b: Rect, margin: number): boolean {
@@ -48,7 +58,8 @@ function overlaps(a: Rect, b: Rect, margin: number): boolean {
 // to the right if the column is full.
 export function findFreePosition(nodes: AppNode[], kind: NodeKind): XYPosition {
   const size = FALLBACK_SIZE[kind]
-  const taken = nodes.map(nodeRect)
+  const byId = new Map(nodes.map((n) => [n.id, n]))
+  const taken = nodes.map((n) => nodeRect(n, byId))
 
   for (let col = 0; col < MAX_COLS; col++) {
     const x = COLUMN_X[kind] + col * (size.width + MARGIN * 2)

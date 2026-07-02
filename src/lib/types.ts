@@ -15,9 +15,14 @@ export type TimelineNodeData = {
 
 export type PortfolioNodeData = Record<string, never>
 
+export type GroupNodeData = {
+  label: string
+}
+
 export type StockNode = Node<StockNodeData, 'stock'>
 export type TimelineNode = Node<TimelineNodeData, 'timeline'>
 export type PortfolioNode = Node<PortfolioNodeData, 'portfolio'>
+export type GroupNode = Node<GroupNodeData, 'group'>
 
-export type AppNode = StockNode | TimelineNode | PortfolioNode
+export type AppNode = StockNode | TimelineNode | PortfolioNode | GroupNode
 export type AppEdge = Edge

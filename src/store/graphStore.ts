@@ -20,6 +20,8 @@ type GraphState = {
   updateNodeData: <T extends AppNode['data']>(id: string, data: Partial<T>) => void
   removeNode: (id: string) => void
   removeNodesByType: (type: NonNullable<AppNode['type']>) => void
+  groupNodes: (ids: string[], label?: string) => void
+  ungroup: (groupId: string) => void
   clearGraph: () => void
   resetGraph: () => void
 }
@@ -63,7 +65,31 @@ export const useGraphStore = create<GraphState>()(
       nodes: initialNodes,
       edges: initialEdges,
       onNodesChange: (changes) => {
-        set({ nodes: applyNodeChanges(changes, get().nodes) as AppNode[] })
+        // Deleting a group must not orphan its children — unparent them at
+        // their absolute position first, so the group dissolves instead.
+        let nodes = get().nodes
+        const removedGroups = new Map(
+          changes
+            .filter((c) => c.type === 'remove')
+            .map((c) => nodes.find((n) => n.id === c.id))
+            .filter((n): n is AppNode => n?.type === 'group')
+            .map((g) => [g.id, g]),
+        )
+        if (removedGroups.size > 0) {
+          nodes = nodes.map((n) => {
+            const parent = n.parentId ? removedGroups.get(n.parentId) : undefined
+            if (!parent) return n
+            return {
+              ...n,
+              parentId: undefined,
+              position: {
+                x: n.position.x + parent.position.x,
+                y: n.position.y + parent.position.y,
+              },
+            } as AppNode
+          })
+        }
+        set({ nodes: applyNodeChanges(changes, nodes) as AppNode[] })
       },
       onEdgesChange: (changes) => {
         set({ edges: applyEdgeChanges(changes, get().edges) })
@@ -96,6 +122,78 @@ export const useGraphStore = create<GraphState>()(
           edges: get().edges.filter(
             (e) => !removed.has(e.source) && !removed.has(e.target),
           ),
+        })
+      },
+      groupNodes: (ids, label = 'Group') => {
+        const nodes = get().nodes
+        // Only top-level, non-group nodes can be grouped
+        const members = nodes.filter(
+          (n) => ids.includes(n.id) && n.type !== 'group' && !n.parentId,
+        )
+        if (members.length < 2) return
+
+        const PAD = 24
+        const HEADER = 36 // room for the name row
+        const rects = members.map((n) => ({
+          x: n.position.x,
+          y: n.position.y,
+          w: n.measured?.width ?? 250,
+          h: n.measured?.height ?? 200,
+        }))
+        const minX = Math.min(...rects.map((r) => r.x)) - PAD
+        const minY = Math.min(...rects.map((r) => r.y)) - PAD - HEADER
+        const maxX = Math.max(...rects.map((r) => r.x + r.w)) + PAD
+        const maxY = Math.max(...rects.map((r) => r.y + r.h)) + PAD
+
+        const groupId = `group-${Math.random().toString(36).slice(2, 8)}`
+        const group: AppNode = {
+          id: groupId,
+          type: 'group',
+          position: { x: minX, y: minY },
+          width: maxX - minX,
+          height: maxY - minY,
+          data: { label },
+        }
+        const memberIds = new Set(members.map((m) => m.id))
+        set({
+          // Parent nodes must come before their children in the array
+          nodes: [
+            group,
+            ...nodes.map((n) =>
+              memberIds.has(n.id)
+                ? ({
+                    ...n,
+                    parentId: groupId,
+                    position: {
+                      x: n.position.x - minX,
+                      y: n.position.y - minY,
+                    },
+                    selected: false,
+                  } as AppNode)
+                : n,
+            ),
+          ],
+        })
+      },
+      ungroup: (groupId) => {
+        const nodes = get().nodes
+        const group = nodes.find((n) => n.id === groupId)
+        if (group?.type !== 'group') return
+        set({
+          nodes: nodes
+            .filter((n) => n.id !== groupId)
+            .map((n) =>
+              n.parentId === groupId
+                ? ({
+                    ...n,
+                    parentId: undefined,
+                    position: {
+                      x: n.position.x + group.position.x,
+                      y: n.position.y + group.position.y,
+                    },
+                  } as AppNode)
+                : n,
+            ),
         })
       },
       clearGraph: () => {

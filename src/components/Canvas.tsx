@@ -12,12 +12,14 @@ import { useGraphStore } from '../store/graphStore'
 import { StockNode } from './nodes/StockNode'
 import { TimelineNode } from './nodes/TimelineNode'
 import { PortfolioNode } from './nodes/PortfolioNode'
+import { GroupNode } from './nodes/GroupNode'
 import { Toolbar } from './Toolbar'
 
 const nodeTypes = {
   stock: StockNode,
   timeline: TimelineNode,
   portfolio: PortfolioNode,
+  group: GroupNode,
 }
 
 function CanvasInner() {

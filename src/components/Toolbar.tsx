@@ -1,38 +1,44 @@
 import { useGraphStore } from '../store/graphStore'
 import type { AppNode } from '../lib/types'
+import { findFreePosition } from '../lib/placement'
+import type { XYPosition } from '@xyflow/react'
 
 function makeId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 8)}`
 }
 
-const BUTTONS: { type: AppNode['type']; label: string; build: () => AppNode }[] = [
+const BUTTONS: {
+  type: NonNullable<AppNode['type']>
+  label: string
+  build: (position: XYPosition) => AppNode
+}[] = [
   {
     type: 'stock',
     label: 'Stock',
-    build: () => ({
+    build: (position) => ({
       id: makeId('stock'),
       type: 'stock',
-      position: { x: 120 + Math.random() * 60, y: 120 + Math.random() * 60 },
+      position,
       data: { ticker: 'SPY', allocation: 1000 },
     }),
   },
   {
     type: 'timeline',
     label: 'Timeline',
-    build: () => ({
+    build: (position) => ({
       id: makeId('timeline'),
       type: 'timeline',
-      position: { x: 480 + Math.random() * 60, y: 200 + Math.random() * 60 },
+      position,
       data: { mode: 'backtest', timeframe: '5Y' },
     }),
   },
   {
     type: 'portfolio',
     label: 'Portfolio',
-    build: () => ({
+    build: (position) => ({
       id: makeId('portfolio'),
       type: 'portfolio',
-      position: { x: 860 + Math.random() * 60, y: 200 + Math.random() * 60 },
+      position,
       data: {},
     }),
   },
@@ -49,7 +55,9 @@ export function Toolbar() {
       {BUTTONS.map((b) => (
         <button
           key={b.type}
-          onClick={() => addNode(b.build())}
+          onClick={() =>
+            addNode(b.build(findFreePosition(useGraphStore.getState().nodes, b.type)))
+          }
           className="rounded-lg px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-surface-2 hover:text-text"
         >
           {b.label}

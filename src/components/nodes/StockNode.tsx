@@ -1,6 +1,7 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react'
 import type { StockNode as StockNodeT } from '../../lib/types'
 import { useGraphStore } from '../../store/graphStore'
+import { TickerSelect } from '../TickerSelect'
 
 export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
   const updateNodeData = useGraphStore((s) => s.updateNodeData)
@@ -19,22 +20,17 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
       </div>
 
       <div className="space-y-3 p-3">
-        <label className="block">
+        <div>
           <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
             Ticker
           </span>
-          <input
-            type="text"
+          <TickerSelect
             value={data.ticker}
-            onChange={(e) =>
-              updateNodeData<StockNodeT['data']>(id, {
-                ticker: e.target.value.toUpperCase().slice(0, 6),
-              })
+            onChange={(ticker) =>
+              updateNodeData<StockNodeT['data']>(id, { ticker })
             }
-            className="w-full rounded-md border border-border bg-surface-2 px-2 py-1.5 font-mono text-sm tracking-wider text-text outline-none focus:border-accent"
-            placeholder="VOO"
           />
-        </label>
+        </div>
 
         <label className="block">
           <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">

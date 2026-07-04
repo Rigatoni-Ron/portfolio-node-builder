@@ -52,6 +52,14 @@ input[type="number"]::-webkit-outer-spin-button {
 .react-flow__background {
   background-color: var(--color-canvas);
 }
+/* Figma-style canvas: arrow cursor, left-drag draws a selection box.
+   Tripled class outranks the library's two-class cursor rules. */
+.react-flow__pane.react-flow__pane.react-flow__pane {
+  cursor: default;
+}
+.react-flow__pane.react-flow__pane.react-flow__pane.dragging {
+  cursor: grabbing;
+}
 /* Strip the library's built-in chrome for type "group" nodes — the
    GroupNode component draws its own frame. Doubled class beats the
    library rule regardless of stylesheet order. */

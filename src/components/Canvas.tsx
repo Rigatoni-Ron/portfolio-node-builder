@@ -5,6 +5,7 @@ import {
   BackgroundVariant,
   Controls,
   ReactFlowProvider,
+  SelectionMode,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 
@@ -47,6 +48,13 @@ function CanvasInner() {
         defaultEdgeOptions={defaultEdgeOptions}
         fitView
         proOptions={{ hideAttribution: false }}
+        // Figma-style controls: left-drag marquee-selects, trackpad scroll
+        // pans, pinch zooms, middle/right mouse button pans
+        panOnDrag={[1, 2]}
+        selectionOnDrag
+        selectionMode={SelectionMode.Partial}
+        panOnScroll
+        zoomOnScroll={false}
       >
         <Background
           variant={BackgroundVariant.Dots}

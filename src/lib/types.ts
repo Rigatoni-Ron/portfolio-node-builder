@@ -17,6 +17,7 @@ export type PortfolioNodeData = Record<string, never>
 
 export type GroupNodeData = {
   label: string
+  color?: string // one of GROUP_COLORS; undefined falls back to neutral
 }
 
 export type StockNode = Node<StockNodeData, 'stock'>

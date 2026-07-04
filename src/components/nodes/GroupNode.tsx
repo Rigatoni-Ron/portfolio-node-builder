@@ -1,33 +1,73 @@
 import type { NodeProps } from '@xyflow/react'
 import type { GroupNode as GroupNodeT } from '../../lib/types'
 import { useGraphStore } from '../../store/graphStore'
+import { GROUP_COLORS, DEFAULT_GROUP_COLOR } from '../../lib/groupColors'
 
+// Figma-section-style group: a flat tinted frame with the name on a small
+// tab floating above the top-left corner. Swatches + ungroup appear beside
+// the tab while the group is selected.
 export function GroupNode({ id, data, selected }: NodeProps<GroupNodeT>) {
   const updateNodeData = useGraphStore((s) => s.updateNodeData)
   const ungroup = useGraphStore((s) => s.ungroup)
+  const color = data.color ?? DEFAULT_GROUP_COLOR
 
   return (
-    <div
-      className={`h-full w-full rounded-2xl border border-dashed bg-surface/30 transition-colors ${
-        selected ? 'border-accent' : 'border-border-strong'
-      }`}
-    >
-      <div className="flex items-center justify-between gap-2 px-3 py-2">
-        <input
-          value={data.label}
-          onChange={(e) =>
-            updateNodeData<GroupNodeT['data']>(id, { label: e.target.value })
-          }
-          placeholder="Group name"
-          className="nodrag w-full min-w-0 rounded bg-transparent text-[11px] font-medium uppercase tracking-wider text-text-muted outline-none placeholder:text-text-dim focus:text-text"
-        />
-        <button
-          onClick={() => ungroup(id)}
-          className="nodrag shrink-0 text-[10px] font-medium uppercase tracking-wider text-text-dim transition-colors hover:text-negative"
+    <div className="relative h-full w-full">
+      <div className="absolute -top-8 left-0 flex items-center gap-1.5">
+        <div
+          className="flex items-center rounded-md px-2 py-1"
+          style={{ backgroundColor: `${color}26` }}
         >
-          Ungroup
-        </button>
+          <input
+            value={data.label}
+            onChange={(e) =>
+              updateNodeData<GroupNodeT['data']>(id, { label: e.target.value })
+            }
+            placeholder="Section"
+            spellCheck={false}
+            style={{ color, width: `${Math.max(data.label.length, 7)}ch` }}
+            className="nodrag bg-transparent text-xs font-semibold outline-none placeholder:text-text-dim"
+          />
+        </div>
+
+        {selected && (
+          <>
+            <div className="nodrag flex items-center gap-1.5 rounded-md border border-border bg-surface/95 px-2 py-1.5 shadow-lg">
+              {GROUP_COLORS.map((c) => (
+                <button
+                  key={c}
+                  onClick={() =>
+                    updateNodeData<GroupNodeT['data']>(id, { color: c })
+                  }
+                  aria-label={`Set group color to ${c}`}
+                  className="h-3 w-3 rounded-full transition-transform hover:scale-125"
+                  style={{
+                    backgroundColor: c,
+                    boxShadow:
+                      c === color
+                        ? `0 0 0 1.5px var(--color-surface), 0 0 0 3px ${c}`
+                        : undefined,
+                  }}
+                />
+              ))}
+            </div>
+            <button
+              onClick={() => ungroup(id)}
+              className="nodrag rounded-md border border-border bg-surface/95 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-text-dim shadow-lg transition-colors hover:text-negative"
+            >
+              Ungroup
+            </button>
+          </>
+        )}
       </div>
+
+      <div
+        className="h-full w-full rounded-xl border transition-colors"
+        style={{
+          borderColor: selected ? color : `${color}55`,
+          backgroundColor: `${color}14`,
+        }}
+      />
     </div>
   )
 }

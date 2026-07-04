@@ -9,6 +9,7 @@ import {
   type Connection,
 } from '@xyflow/react'
 import type { AppNode, AppEdge } from '../lib/types'
+import { DEFAULT_GROUP_COLOR } from '../lib/groupColors'
 
 type GraphState = {
   nodes: AppNode[]
@@ -132,8 +133,9 @@ export const useGraphStore = create<GraphState>()(
         )
         if (members.length < 2) return
 
-        const PAD = 24
-        const HEADER = 36 // room for the name row
+        // Tight Figma-section-style frame — the name tab floats above it,
+        // so no extra header space inside the bounds.
+        const PAD = 16
         const rects = members.map((n) => ({
           x: n.position.x,
           y: n.position.y,
@@ -141,7 +143,7 @@ export const useGraphStore = create<GraphState>()(
           h: n.measured?.height ?? 200,
         }))
         const minX = Math.min(...rects.map((r) => r.x)) - PAD
-        const minY = Math.min(...rects.map((r) => r.y)) - PAD - HEADER
+        const minY = Math.min(...rects.map((r) => r.y)) - PAD
         const maxX = Math.max(...rects.map((r) => r.x + r.w)) + PAD
         const maxY = Math.max(...rects.map((r) => r.y + r.h)) + PAD
 
@@ -152,7 +154,7 @@ export const useGraphStore = create<GraphState>()(
           position: { x: minX, y: minY },
           width: maxX - minX,
           height: maxY - minY,
-          data: { label },
+          data: { label, color: DEFAULT_GROUP_COLOR },
         }
         const memberIds = new Set(members.map((m) => m.id))
         set({

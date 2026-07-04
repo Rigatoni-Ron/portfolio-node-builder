@@ -52,6 +52,16 @@ input[type="number"]::-webkit-outer-spin-button {
 .react-flow__background {
   background-color: var(--color-canvas);
 }
+/* Strip the library's built-in chrome for type "group" nodes — the
+   GroupNode component draws its own frame. Doubled class beats the
+   library rule regardless of stylesheet order. */
+.react-flow__node.react-flow__node-group {
+  background: none;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
 .react-flow__edge-path {
   stroke: var(--color-border-strong);
   stroke-width: 1.5;

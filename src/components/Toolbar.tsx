@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Plus } from 'lucide-react'
 import { useGraphStore } from '../store/graphStore'
 import type { AppNode } from '../lib/types'
 import { findFreePosition } from '../lib/placement'
@@ -45,104 +46,58 @@ const BUTTONS: {
   },
 ]
 
-type ToolbarMode = 'add' | 'remove'
-
 const groupable = (n: AppNode) =>
   !!n.selected && n.type !== 'group' && !n.parentId
 
 export function Toolbar() {
   const addNode = useGraphStore((s) => s.addNode)
-  const removeNodesByType = useGraphStore((s) => s.removeNodesByType)
   const clearGraph = useGraphStore((s) => s.clearGraph)
   const groupNodes = useGraphStore((s) => s.groupNodes)
   const groupableCount = useGraphStore((s) => s.nodes.filter(groupable).length)
 
-  const [mode, setMode] = useState<ToolbarMode>('add')
-
-  // "All" needs a second click within 2.5s to actually clear the canvas
-  const [confirmAll, setConfirmAll] = useState(false)
+  // "Clear all" needs a second click within 2.5s to actually clear the canvas
+  const [confirmClear, setConfirmClear] = useState(false)
   const confirmTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   useEffect(() => () => clearTimeout(confirmTimer.current), [])
 
-  const disarm = () => {
-    clearTimeout(confirmTimer.current)
-    setConfirmAll(false)
-  }
-
-  const switchMode = (m: ToolbarMode) => {
-    setMode(m)
-    disarm()
-  }
-
-  const onType = (b: (typeof BUTTONS)[number]) => {
-    if (mode === 'add') {
-      addNode(b.build(findFreePosition(useGraphStore.getState().nodes, b.type)))
-    } else {
-      removeNodesByType(b.type)
-    }
-  }
-
-  const onRemoveAll = () => {
-    if (confirmAll) {
-      disarm()
+  const onClearAll = () => {
+    if (confirmClear) {
+      clearTimeout(confirmTimer.current)
+      setConfirmClear(false)
       clearGraph()
     } else {
-      setConfirmAll(true)
-      confirmTimer.current = setTimeout(() => setConfirmAll(false), 2500)
+      setConfirmClear(true)
+      confirmTimer.current = setTimeout(() => setConfirmClear(false), 2500)
     }
   }
 
   return (
     <div className="pointer-events-auto absolute left-4 top-4 z-10 flex items-center gap-1 rounded-xl border border-border bg-surface/95 p-1 shadow-lg backdrop-blur">
-      <div className="flex items-center gap-0.5 rounded-lg border border-border bg-surface-2 p-0.5">
-        <button
-          onClick={() => switchMode('add')}
-          className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
-            mode === 'add'
-              ? 'bg-accent/20 text-accent'
-              : 'text-text-muted hover:text-text'
-          }`}
-        >
-          Add
-        </button>
-        <button
-          onClick={() => switchMode('remove')}
-          className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
-            mode === 'remove'
-              ? 'bg-negative/15 text-negative'
-              : 'text-text-muted hover:text-text'
-          }`}
-        >
-          Remove
-        </button>
-      </div>
-
       {BUTTONS.map((b) => (
         <button
           key={b.type}
-          onClick={() => onType(b)}
-          className={`rounded-lg px-3 py-1.5 text-xs font-medium text-text-muted transition-colors ${
-            mode === 'add'
-              ? 'hover:bg-surface-2 hover:text-text'
-              : 'hover:bg-negative/10 hover:text-negative'
-          }`}
+          onClick={() =>
+            addNode(b.build(findFreePosition(useGraphStore.getState().nodes, b.type)))
+          }
+          className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-surface-2 hover:text-text"
         >
+          <Plus size={13} strokeWidth={2.25} />
           {b.label}
         </button>
       ))}
 
-      {mode === 'remove' && (
-        <button
-          onClick={onRemoveAll}
-          className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-            confirmAll
-              ? 'bg-negative/15 text-negative'
-              : 'text-text-muted hover:bg-negative/10 hover:text-negative'
-          }`}
-        >
-          {confirmAll ? 'Sure?' : 'All'}
-        </button>
-      )}
+      <div className="h-5 w-px bg-border" />
+
+      <button
+        onClick={onClearAll}
+        className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+          confirmClear
+            ? 'bg-negative/15 text-negative'
+            : 'text-text-muted hover:bg-negative/10 hover:text-negative'
+        }`}
+      >
+        {confirmClear ? 'Sure?' : 'Clear all'}
+      </button>
 
       {groupableCount >= 2 && (
         <>

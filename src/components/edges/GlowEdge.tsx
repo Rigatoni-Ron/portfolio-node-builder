@@ -36,7 +36,7 @@ export function GlowEdge({
       </circle>
       <circle
         r={2}
-        fill="#e9d5ff"
+        fill="#dbeafe"
         style={{ filter: 'drop-shadow(0 0 4px var(--color-accent))' }}
       >
         <animateMotion dur="2.4s" repeatCount="indefinite" path={edgePath} />

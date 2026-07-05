@@ -1,10 +1,14 @@
-import { BaseEdge, getBezierPath, type EdgeProps } from '@xyflow/react'
+import { BaseEdge, getBezierPath, useStore, type EdgeProps } from '@xyflow/react'
+import { isFunctionalEdge } from '../../lib/edgeRules'
 
 // Standard bezier edge with a pulse of light traveling along it — a soft
 // blurred halo under a bright core, both riding the path via SMIL
-// animateMotion.
+// animateMotion. Edges the portfolio math ignores (e.g. stock→portfolio)
+// render as a dashed red line with no pulse.
 export function GlowEdge({
   id,
+  source,
+  target,
   sourceX,
   sourceY,
   sourcePosition,
@@ -14,6 +18,20 @@ export function GlowEdge({
   markerEnd,
   style,
 }: EdgeProps) {
+  const functional = useStore((s) => {
+    const sourceType = s.nodeLookup.get(source)?.type
+    const targetType = s.nodeLookup.get(target)?.type
+    if (!isFunctionalEdge(sourceType, targetType)) return false
+    // A portfolio only reads its first timeline edge — extras are inert
+    if (sourceType === 'timeline' && targetType === 'portfolio') {
+      const first = s.edges.find(
+        (e) =>
+          e.target === target && s.nodeLookup.get(e.source)?.type === 'timeline',
+      )
+      return first?.id === id
+    }
+    return true
+  })
   const [edgePath] = getBezierPath({
     sourceX,
     sourceY,
@@ -22,6 +40,21 @@ export function GlowEdge({
     targetY,
     targetPosition,
   })
+
+  if (!functional) {
+    return (
+      <BaseEdge
+        id={id}
+        path={edgePath}
+        markerEnd={markerEnd}
+        style={{
+          ...style,
+          stroke: 'rgba(239, 68, 68, 0.55)',
+          strokeDasharray: '6 4',
+        }}
+      />
+    )
+  }
 
   return (
     <>

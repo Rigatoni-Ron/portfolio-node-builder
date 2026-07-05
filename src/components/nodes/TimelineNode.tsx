@@ -59,6 +59,21 @@ function Segmented<T extends string>({
 
 export function TimelineNode({ id, data, selected }: NodeProps<TimelineNodeT>) {
   const updateNodeData = useGraphStore((s) => s.updateNodeData)
+  // Connected to a portfolio that already reads an earlier timeline — that
+  // edge is inert, flag it
+  const edgeIgnored = useGraphStore((s) =>
+    s.edges.some((e) => {
+      if (e.source !== id) return false
+      if (s.nodes.find((n) => n.id === e.target)?.type !== 'portfolio')
+        return false
+      const first = s.edges.find(
+        (e2) =>
+          e2.target === e.target &&
+          s.nodes.find((n) => n.id === e2.source)?.type === 'timeline',
+      )
+      return !!first && first.source !== id
+    }),
+  )
 
   return (
     <div
@@ -99,6 +114,13 @@ export function TimelineNode({ id, data, selected }: NodeProps<TimelineNodeT>) {
               }
             />
           </div>
+
+          {edgeIgnored && (
+            <p className="rounded-md border border-negative/40 bg-negative/10 px-2 py-1.5 text-[10px] leading-snug text-negative">
+              That Portfolio already reads another Timeline — this connection
+              is ignored.
+            </p>
+          )}
         </div>
       </AnimatedHeight>
 

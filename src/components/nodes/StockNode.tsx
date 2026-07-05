@@ -8,6 +8,14 @@ import { AnimatedHeight } from '../AnimatedHeight'
 export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
   const updateNodeData = useGraphStore((s) => s.updateNodeData)
   const info = getTickerInfo(data.ticker)
+  // Wired straight into a portfolio — that edge is inert, flag it
+  const feedsPortfolio = useGraphStore((s) =>
+    s.edges.some(
+      (e) =>
+        e.source === id &&
+        s.nodes.find((n) => n.id === e.target)?.type === 'portfolio',
+    ),
+  )
 
   return (
     <div
@@ -88,6 +96,13 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
                 {info.description}
               </p>
             </div>
+          )}
+
+          {feedsPortfolio && (
+            <p className="rounded-md border border-negative/40 bg-negative/10 px-2 py-1.5 text-[10px] leading-snug text-negative">
+              A stock can't feed a Portfolio directly — connect it to a
+              Timeline node instead.
+            </p>
           )}
         </div>
       </AnimatedHeight>

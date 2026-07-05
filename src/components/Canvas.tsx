@@ -35,6 +35,7 @@ function CanvasInner() {
   const onNodesChange = useGraphStore((s) => s.onNodesChange)
   const onEdgesChange = useGraphStore((s) => s.onEdgesChange)
   const onConnect = useGraphStore((s) => s.onConnect)
+  const duplicateNodes = useGraphStore((s) => s.duplicateNodes)
 
   const defaultEdgeOptions = useMemo(
     () => ({ animated: false, style: { strokeWidth: 1.5 } }),
@@ -50,6 +51,10 @@ function CanvasInner() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        // Figma-style option-drag: leave a copy behind at the drag origin
+        onNodeDragStart={(event, _node, draggedNodes) => {
+          if (event.altKey) duplicateNodes(draggedNodes.map((n) => n.id))
+        }}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         defaultEdgeOptions={defaultEdgeOptions}

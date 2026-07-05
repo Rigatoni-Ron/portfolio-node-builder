@@ -22,6 +22,7 @@ type GraphState = {
   removeNode: (id: string) => void
   groupNodes: (ids: string[], label?: string) => void
   ungroup: (groupId: string) => void
+  duplicateNodes: (ids: string[]) => void
   clearGraph: () => void
   resetGraph: () => void
 }
@@ -185,6 +186,50 @@ export const useGraphStore = create<GraphState>()(
                 : n,
             ),
         })
+      },
+      duplicateNodes: (ids) => {
+        const { nodes, edges } = get()
+        const rand = () => Math.random().toString(36).slice(2, 8)
+
+        // Duplicating a group brings its children along
+        const idSet = new Set(ids)
+        for (const n of nodes) {
+          if (n.parentId && idSet.has(n.parentId)) idSet.add(n.id)
+        }
+
+        const idMap = new Map<string, string>()
+        for (const oldId of idSet) {
+          idMap.set(oldId, `${oldId.split('-')[0]}-${rand()}`)
+        }
+
+        // Filtering the original array keeps parents ahead of their children
+        const clones = nodes
+          .filter((n) => idSet.has(n.id))
+          .map(
+            (n) =>
+              ({
+                ...n,
+                id: idMap.get(n.id)!,
+                parentId:
+                  n.parentId && idMap.has(n.parentId)
+                    ? idMap.get(n.parentId)
+                    : n.parentId,
+                selected: false,
+                dragging: false,
+              }) as AppNode,
+          )
+
+        // Carry over edges that live entirely inside the duplicated set
+        const cloneEdges = edges
+          .filter((e) => idMap.has(e.source) && idMap.has(e.target))
+          .map((e) => ({
+            ...e,
+            id: `e-${rand()}`,
+            source: idMap.get(e.source)!,
+            target: idMap.get(e.target)!,
+          }))
+
+        set({ nodes: [...nodes, ...clones], edges: [...edges, ...cloneEdges] })
       },
       clearGraph: () => {
         set({ nodes: [], edges: [] })

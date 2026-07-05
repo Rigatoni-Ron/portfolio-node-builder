@@ -15,7 +15,7 @@ export type TimelineNodeData = {
 
 export type PortfolioNodeData = Record<string, never>
 
-export type EarnStrategy = 'hold' | 'stake' | 'lend' | 'borrow'
+export type EarnStrategy = 'hold' | 'yield'
 
 export type EarnNodeData = {
   strategy: EarnStrategy

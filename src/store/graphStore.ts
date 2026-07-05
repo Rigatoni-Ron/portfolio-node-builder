@@ -247,7 +247,19 @@ export const useGraphStore = create<GraphState>()(
     {
       name: 'portfolio-node-builder-graph',
       partialize: (state) => ({ nodes: state.nodes, edges: state.edges }),
-      version: 1,
+      version: 2,
+      // v2 collapsed Earn strategies stake/lend/borrow into a single "yield"
+      migrate: (persisted, version) => {
+        const state = persisted as { nodes?: AppNode[]; edges?: AppEdge[] }
+        if (version < 2 && state.nodes) {
+          state.nodes = state.nodes.map((n) =>
+            n.type === 'earn' && n.data.strategy !== 'hold'
+              ? ({ ...n, data: { ...n.data, strategy: 'yield' } } as AppNode)
+              : n,
+          )
+        }
+        return state
+      },
     },
   ),
 )

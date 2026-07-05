@@ -7,17 +7,14 @@ import { NumberField } from '../NumberField'
 
 const STRATEGIES: { value: EarnStrategy; label: string }[] = [
   { value: 'hold', label: 'Hold' },
-  { value: 'stake', label: 'Stake' },
-  { value: 'lend', label: 'Lend' },
-  { value: 'borrow', label: 'Borrow' },
+  { value: 'yield', label: 'Yield' },
 ]
 
-// Sensible starting APRs; borrow is a cost, hence negative
+// Hold is a plain passthrough; Yield exposes an editable APR. Negative
+// values model a borrow cost.
 const DEFAULT_APR: Record<EarnStrategy, number> = {
   hold: 0,
-  stake: 4,
-  lend: 5,
-  borrow: -6,
+  yield: 5,
 }
 
 export function EarnNode({ id, data, selected }: NodeProps<EarnNodeT>) {

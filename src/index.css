@@ -83,12 +83,14 @@ input[type="number"]::-webkit-outer-spin-button {
   height: 16px;
   background: var(--color-surface-2);
   border: 2px solid var(--color-border-strong);
-  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  transition: scale 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
 .react-flow .react-flow__handle:hover {
   background: var(--color-accent);
   border-color: var(--color-accent);
-  transform: scale(1.25);
+  /* standalone scale composes with the library's positioning transform —
+     transform: scale() would replace it and shift the handle */
+  scale: 1.25;
 }
 .react-flow__controls {
   /* xyflow theming variables — these beat the library stylesheet regardless

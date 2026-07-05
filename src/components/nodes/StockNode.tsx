@@ -15,11 +15,10 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
         selected ? 'border-accent' : 'border-border'
       }`}
     >
-      <div className="flex items-center justify-between border-b border-border px-3 py-2">
+      <div className="border-b border-border px-3 py-2">
         <span className="text-[11px] font-medium uppercase tracking-wider text-text-muted">
           Stock / ETF
         </span>
-        <span className="h-1.5 w-1.5 rounded-full bg-accent" />
       </div>
 
       <AnimatedHeight>

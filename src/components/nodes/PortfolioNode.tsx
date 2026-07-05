@@ -146,24 +146,10 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
         selected ? 'border-accent' : 'border-border'
       }`}
     >
-      <div className="flex items-center justify-between border-b border-border px-3 py-2">
+      <div className="border-b border-border px-3 py-2">
         <span className="text-[11px] font-medium uppercase tracking-wider text-text-muted">
           Portfolio
         </span>
-        <div className="flex items-center gap-1.5">
-          {status === 'loading' && (
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-          )}
-          {status === 'ready' && (
-            <span className="h-1.5 w-1.5 rounded-full bg-positive" />
-          )}
-          {status === 'error' && (
-            <span className="h-1.5 w-1.5 rounded-full bg-negative" />
-          )}
-          {status === 'idle' && (
-            <span className="h-1.5 w-1.5 rounded-full bg-border-strong" />
-          )}
-        </div>
       </div>
 
       <AnimatedHeight>

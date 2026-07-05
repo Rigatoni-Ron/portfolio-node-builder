@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { TICKERS, TICKER_BADGE_CLASSES, type TickerInfo } from '../lib/tickers'
 
 type Props = {
@@ -12,7 +13,13 @@ export function TickerSelect({ value, onChange }: Props) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
+  const [menuPos, setMenuPos] = useState<{
+    left: number
+    top: number
+    width: number
+  } | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
 
   const q = query.trim().toLowerCase()
@@ -40,13 +47,27 @@ export function TickerSelect({ value, onChange }: Props) {
     customSymbol.length > 0 && !results.some((t) => t.symbol === customSymbol)
   const optionCount = results.length + (showCustom ? 1 : 0)
 
+  // Anchor the portaled menu to the input. Screen coords (fixed position)
+  // so it stays put regardless of the node's own overflow clip.
+  useLayoutEffect(() => {
+    if (open && inputRef.current) {
+      const r = inputRef.current.getBoundingClientRect()
+      setMenuPos({ left: r.left, top: r.bottom + 4, width: Math.max(r.width, 288) })
+    }
+  }, [open])
+
   useEffect(() => {
     if (!open) return
     const onPointerDown = (e: PointerEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-        setOpen(false)
-        setQuery('')
-      }
+      const target = e.target as Node
+      // The menu is portaled outside rootRef, so check it separately
+      if (
+        rootRef.current?.contains(target) ||
+        listRef.current?.contains(target)
+      )
+        return
+      setOpen(false)
+      setQuery('')
     }
     document.addEventListener('pointerdown', onPointerDown)
     return () => document.removeEventListener('pointerdown', onPointerDown)
@@ -88,6 +109,7 @@ export function TickerSelect({ value, onChange }: Props) {
   return (
     <div ref={rootRef} className="relative">
       <input
+        ref={inputRef}
         type="text"
         role="combobox"
         aria-expanded={open}
@@ -107,10 +129,18 @@ export function TickerSelect({ value, onChange }: Props) {
         placeholder={value ? undefined : 'Search ticker or name'}
       />
 
-      {open && (
+      {open &&
+        menuPos &&
+        createPortal(
         <ul
           ref={listRef}
-          className="nodrag nowheel absolute left-0 top-full z-50 mt-1 max-h-60 w-72 overflow-y-auto rounded-lg border border-border-strong bg-surface shadow-xl"
+          style={{
+            position: 'fixed',
+            left: menuPos.left,
+            top: menuPos.top,
+            width: menuPos.width,
+          }}
+          className="nodrag nowheel z-50 max-h-60 overflow-y-auto rounded-lg border border-border-strong bg-surface shadow-xl"
         >
           {results.map((t, i) => (
             <li key={t.symbol} data-index={i}>
@@ -165,8 +195,9 @@ export function TickerSelect({ value, onChange }: Props) {
           {optionCount === 0 && (
             <li className="px-3 py-2 text-[11px] text-text-dim">No matches</li>
           )}
-        </ul>
-      )}
+        </ul>,
+          document.body,
+        )}
     </div>
   )
 }

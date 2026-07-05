@@ -162,10 +162,16 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
         selected ? 'border-accent' : 'border-border'
       }`}
     >
-      <div className="border-b border-border px-3 py-2">
+      <div className="relative border-b border-border px-3 py-2">
         <span className="text-[11px] font-medium uppercase tracking-wider text-text-muted">
           Portfolio
         </span>
+        {inputs.mode && (
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-wider text-text-dim">
+            {inputs.mode === 'projection' ? 'Projection' : 'Backtest'} ·{' '}
+            {inputs.timeframe}
+          </span>
+        )}
       </div>
 
       <AnimatedHeight>
@@ -184,38 +190,6 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
 
           {(status === 'loading' || status === 'ready') && (
             <>
-              <div>
-                <div className="text-[10px] uppercase tracking-wider text-text-dim">
-                  {result?.mode === 'projection' ? 'Projected return' : 'Total return'}
-                </div>
-                <div
-                  className={`mt-0.5 font-mono text-2xl font-medium tabular-nums ${
-                    status === 'loading'
-                      ? 'text-text-dim'
-                      : positive
-                        ? 'text-positive'
-                        : 'text-negative'
-                  }`}
-                >
-                  {result
-                    ? `${positive ? '+' : ''}${result.totalReturnPct.toFixed(2)}%`
-                    : '—'}
-                </div>
-                <div
-                  className={`font-mono text-xs tabular-nums ${
-                    status === 'loading'
-                      ? 'text-text-dim'
-                      : positive
-                        ? 'text-positive'
-                        : 'text-negative'
-                  }`}
-                >
-                  {result
-                    ? `${positive ? '+' : '-'}${fmtMoney(Math.abs(result.totalReturnDollars))}`
-                    : ''}
-                </div>
-              </div>
-
               {chart && (
                 <div className="nodrag nowheel h-28">
                   <Liveline
@@ -241,27 +215,8 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-2 border-t border-border pt-3">
-                <div>
-                  <div className="text-[10px] uppercase tracking-wider text-text-dim">
-                    Invested
-                  </div>
-                  <div className="font-mono text-sm tabular-nums text-text">
-                    {result ? fmtMoney(result.invested) : '—'}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[10px] uppercase tracking-wider text-text-dim">
-                    {result?.mode === 'projection' ? 'Projected' : 'Ending'}
-                  </div>
-                  <div className="font-mono text-sm tabular-nums text-text">
-                    {result ? fmtMoney(result.endingValue) : '—'}
-                  </div>
-                </div>
-              </div>
-
               {result && result.positions.length > 0 && (
-                <div className="border-t border-border pt-3">
+                <div className="rounded-md bg-surface-2/60 px-2 py-1.5">
                   <div className="mb-2 text-[10px] uppercase tracking-wider text-text-dim">
                     Holdings
                   </div>
@@ -277,9 +232,6 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
                             {p.ticker}
                           </span>
                           <div className="flex items-center gap-3">
-                            <span className="font-mono text-text-dim tabular-nums">
-                              {fmtMoney(p.allocation)}
-                            </span>
                             <span
                               className={`font-mono tabular-nums ${
                                 posPos ? 'text-positive' : 'text-negative'
@@ -287,6 +239,9 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
                             >
                               {posPos ? '+' : ''}
                               {p.returnPct.toFixed(1)}%
+                            </span>
+                            <span className="font-mono text-text tabular-nums">
+                              {fmtMoney(p.allocation)}
                             </span>
                           </div>
                         </div>
@@ -296,13 +251,44 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
                 </div>
               )}
 
-              <div className="flex items-center justify-between border-t border-border pt-2 text-[10px] uppercase tracking-wider text-text-dim">
-                <span>
-                  {result?.mode === 'projection' ? 'Projection' : 'Backtest'} ·{' '}
-                  {result?.timeframe ?? inputs.timeframe}
-                </span>
-                {isUsingMockData() && <span className="text-accent">Mock data</span>}
-              </div>
+              {result && (
+                <div className="rounded-md bg-surface-2/60 px-2 py-1.5">
+                  <div className="mb-2 text-[10px] uppercase tracking-wider text-text-dim">
+                    Totals
+                  </div>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-text-muted">Invested</span>
+                      <span className="font-mono text-text tabular-nums">
+                        {fmtMoney(result.invested)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-text-muted">Gains</span>
+                      <span
+                        className={`font-mono tabular-nums ${
+                          positive ? 'text-positive' : 'text-negative'
+                        }`}
+                      >
+                        {positive ? '+' : '-'}
+                        {fmtMoney(Math.abs(result.totalReturnDollars))}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-text-muted">Return</span>
+                      <span className="font-mono text-text tabular-nums">
+                        {fmtMoney(result.endingValue)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {isUsingMockData() && (
+                <div className="text-center text-[10px] uppercase tracking-wider text-accent">
+                  Mock data
+                </div>
+              )}
             </>
           )}
         </div>

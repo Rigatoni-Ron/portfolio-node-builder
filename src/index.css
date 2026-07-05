@@ -60,6 +60,13 @@ input[type="number"]::-webkit-outer-spin-button {
 .react-flow__pane.react-flow__pane.react-flow__pane.dragging {
   cursor: grabbing;
 }
+/* Hand tool (H): grab cursor everywhere on the pane */
+.tool-hand .react-flow__pane.react-flow__pane.react-flow__pane {
+  cursor: grab;
+}
+.tool-hand .react-flow__pane.react-flow__pane.react-flow__pane.dragging {
+  cursor: grabbing;
+}
 /* Strip the library's built-in chrome for type "group" nodes — the
    GroupNode component draws its own frame. Doubled class beats the
    library rule regardless of stylesheet order. */

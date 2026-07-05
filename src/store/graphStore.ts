@@ -11,9 +11,13 @@ import {
 import type { AppNode, AppEdge } from '../lib/types'
 import { DEFAULT_GROUP_COLOR } from '../lib/groupColors'
 
+export type CanvasTool = 'select' | 'hand'
+
 type GraphState = {
   nodes: AppNode[]
   edges: AppEdge[]
+  tool: CanvasTool
+  setTool: (tool: CanvasTool) => void
   onNodesChange: (changes: NodeChange<AppNode>[]) => void
   onEdgesChange: (changes: EdgeChange<AppEdge>[]) => void
   onConnect: (connection: Connection) => void
@@ -65,6 +69,8 @@ export const useGraphStore = create<GraphState>()(
     (set, get) => ({
       nodes: initialNodes,
       edges: initialEdges,
+      tool: 'select',
+      setTool: (tool) => set({ tool }),
       onNodesChange: (changes) => {
         // Deleting a group must not orphan its children — unparent them at
         // their absolute position first, so the group dissolves instead.

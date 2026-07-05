@@ -36,6 +36,7 @@ function CanvasInner() {
   const onEdgesChange = useGraphStore((s) => s.onEdgesChange)
   const onConnect = useGraphStore((s) => s.onConnect)
   const duplicateNodes = useGraphStore((s) => s.duplicateNodes)
+  const tool = useGraphStore((s) => s.tool)
 
   const defaultEdgeOptions = useMemo(
     () => ({ animated: false, style: { strokeWidth: 1.5 } }),
@@ -43,7 +44,7 @@ function CanvasInner() {
   )
 
   return (
-    <div className="relative h-full w-full">
+    <div className={`relative h-full w-full ${tool === 'hand' ? 'tool-hand' : ''}`}>
       <Toolbar />
       <ReactFlow
         nodes={nodes}
@@ -61,11 +62,14 @@ function CanvasInner() {
         connectionRadius={36}
         fitView
         proOptions={{ hideAttribution: false }}
-        // Figma-style controls: left-drag marquee-selects, trackpad scroll
-        // pans, pinch zooms, middle/right mouse button pans
-        panOnDrag={[1, 2]}
-        selectionOnDrag
+        // Figma-style controls: left-drag marquee-selects (select tool) or
+        // pans (hand tool), trackpad scroll pans, pinch zooms, middle/right
+        // mouse button always pans
+        panOnDrag={tool === 'hand' ? true : [1, 2]}
+        selectionOnDrag={tool === 'select'}
         selectionMode={SelectionMode.Partial}
+        nodesDraggable={tool !== 'hand'}
+        elementsSelectable={tool !== 'hand'}
         panOnScroll
         zoomOnScroll={false}
       >

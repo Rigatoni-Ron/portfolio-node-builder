@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Plus } from 'lucide-react'
+import { AnimatedWidth } from './AnimatedWidth'
 import { useGraphStore } from '../store/graphStore'
 import type { AppNode } from '../lib/types'
 import { findFreePosition } from '../lib/placement'
@@ -90,13 +91,17 @@ export function Toolbar() {
 
       <button
         onClick={onClearAll}
-        className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+        className={`rounded-lg text-xs font-medium transition-colors ${
           confirmClear
             ? 'bg-negative/15 text-negative'
             : 'text-text-muted hover:bg-negative/10 hover:text-negative'
         }`}
       >
-        {confirmClear ? 'Sure?' : 'Clear all'}
+        <AnimatedWidth>
+          <span className="block whitespace-nowrap px-3 py-1.5">
+            {confirmClear ? 'Are you sure?' : 'Clear all'}
+          </span>
+        </AnimatedWidth>
       </button>
 
       {groupableCount >= 2 && (

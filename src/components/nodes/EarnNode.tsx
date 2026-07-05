@@ -3,6 +3,7 @@ import type { EarnNode as EarnNodeT, EarnStrategy } from '../../lib/types'
 import { useGraphStore } from '../../store/graphStore'
 import { AnimatedHeight } from '../AnimatedHeight'
 import { Segmented } from '../Segmented'
+import { NumberField } from '../NumberField'
 
 const STRATEGIES: { value: EarnStrategy; label: string }[] = [
   { value: 'hold', label: 'Hold' },
@@ -58,14 +59,11 @@ export function EarnNode({ id, data, selected }: NodeProps<EarnNodeT>) {
                 APR
               </span>
               <div className="flex items-center rounded-md border border-border bg-surface-2 focus-within:border-accent">
-                <input
-                  type="number"
+                <NumberField
                   step={0.5}
                   value={data.apr}
-                  onChange={(e) =>
-                    updateNodeData<EarnNodeT['data']>(id, {
-                      apr: Number(e.target.value) || 0,
-                    })
+                  onChange={(apr) =>
+                    updateNodeData<EarnNodeT['data']>(id, { apr })
                   }
                   className="w-full bg-transparent px-2 py-1.5 text-sm text-text outline-none"
                 />

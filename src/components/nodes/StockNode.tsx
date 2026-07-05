@@ -4,6 +4,7 @@ import { useGraphStore } from '../../store/graphStore'
 import { TickerSelect } from '../TickerSelect'
 import { getTickerInfo, TICKER_BADGE_CLASSES } from '../../lib/tickers'
 import { AnimatedHeight } from '../AnimatedHeight'
+import { NumberField } from '../NumberField'
 
 export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
   const updateNodeData = useGraphStore((s) => s.updateNodeData)
@@ -53,15 +54,12 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
                 </span>
                 <div className="flex items-center rounded-md border border-border bg-surface-2 focus-within:border-accent">
                   <span className="pl-2 text-sm text-text-dim">$</span>
-                  <input
-                    type="number"
+                  <NumberField
                     min={0}
                     step={100}
                     value={data.allocation}
-                    onChange={(e) =>
-                      updateNodeData<StockNodeT['data']>(id, {
-                        allocation: Number(e.target.value) || 0,
-                      })
+                    onChange={(allocation) =>
+                      updateNodeData<StockNodeT['data']>(id, { allocation })
                     }
                     className="w-full bg-transparent px-2 py-1.5 text-sm text-text outline-none"
                   />

@@ -1,6 +1,7 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react'
 import type { TimelineNode as TimelineNodeT, Timeframe, TimelineMode } from '../../lib/types'
 import { useGraphStore } from '../../store/graphStore'
+import { AnimatedHeight } from '../AnimatedHeight'
 
 const TIMEFRAMES: Timeframe[] = ['1Y', '3Y', '5Y', '10Y']
 const MODES: { value: TimelineMode; label: string }[] = [
@@ -24,49 +25,51 @@ export function TimelineNode({ id, data, selected }: NodeProps<TimelineNodeT>) {
         <span className="h-1.5 w-1.5 rounded-full bg-accent" />
       </div>
 
-      <div className="space-y-3 p-3">
-        <div>
-          <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-text-dim">
-            Mode
-          </span>
-          <div className="grid grid-cols-2 gap-1 rounded-md border border-border bg-surface-2 p-0.5">
-            {MODES.map((m) => (
-              <button
-                key={m.value}
-                onClick={() => updateNodeData<TimelineNodeT['data']>(id, { mode: m.value })}
-                className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
-                  data.mode === m.value
-                    ? 'bg-accent/20 text-accent'
-                    : 'text-text-muted hover:text-text'
-                }`}
-              >
-                {m.label}
-              </button>
-            ))}
+      <AnimatedHeight>
+        <div className="space-y-3 p-3">
+          <div>
+            <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-text-dim">
+              Mode
+            </span>
+            <div className="grid grid-cols-2 gap-1 rounded-md border border-border bg-surface-2 p-0.5">
+              {MODES.map((m) => (
+                <button
+                  key={m.value}
+                  onClick={() => updateNodeData<TimelineNodeT['data']>(id, { mode: m.value })}
+                  className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
+                    data.mode === m.value
+                      ? 'bg-accent/20 text-accent'
+                      : 'text-text-muted hover:text-text'
+                  }`}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div>
-          <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-text-dim">
-            {data.mode === 'backtest' ? 'Past' : 'Next'}
-          </span>
-          <div className="grid grid-cols-4 gap-1 rounded-md border border-border bg-surface-2 p-0.5">
-            {TIMEFRAMES.map((tf) => (
-              <button
-                key={tf}
-                onClick={() => updateNodeData<TimelineNodeT['data']>(id, { timeframe: tf })}
-                className={`rounded px-1 py-1 text-xs font-medium transition-colors ${
-                  data.timeframe === tf
-                    ? 'bg-accent/20 text-accent'
-                    : 'text-text-muted hover:text-text'
-                }`}
-              >
-                {tf}
-              </button>
-            ))}
+          <div>
+            <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-text-dim">
+              {data.mode === 'backtest' ? 'Past' : 'Next'}
+            </span>
+            <div className="grid grid-cols-4 gap-1 rounded-md border border-border bg-surface-2 p-0.5">
+              {TIMEFRAMES.map((tf) => (
+                <button
+                  key={tf}
+                  onClick={() => updateNodeData<TimelineNodeT['data']>(id, { timeframe: tf })}
+                  className={`rounded px-1 py-1 text-xs font-medium transition-colors ${
+                    data.timeframe === tf
+                      ? 'bg-accent/20 text-accent'
+                      : 'text-text-muted hover:text-text'
+                  }`}
+                >
+                  {tf}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      </AnimatedHeight>
 
       <Handle type="target" position={Position.Left} />
       <Handle type="source" position={Position.Right} />

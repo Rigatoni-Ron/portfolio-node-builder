@@ -9,6 +9,7 @@ import type {
 import { useGraphStore } from '../../store/graphStore'
 import { computePortfolio, type PortfolioResult } from '../../lib/portfolioMath'
 import { isUsingMockData } from '../../lib/twelveData'
+import { AnimatedHeight } from '../AnimatedHeight'
 
 type Inputs = {
   timelineId: string | null
@@ -165,140 +166,142 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
         </div>
       </div>
 
-      <div className="space-y-3 p-3">
-        {status === 'idle' && (
-          <div className="rounded-md border border-dashed border-border bg-surface-2/50 px-3 py-6 text-center text-[11px] text-text-dim">
-            Connect Stock nodes → Timeline → here
-          </div>
-        )}
-
-        {status === 'error' && (
-          <div className="rounded-md border border-negative/40 bg-negative/10 px-3 py-3 text-center text-[11px] text-negative">
-            {errMsg ?? 'Failed to compute'}
-          </div>
-        )}
-
-        {(status === 'loading' || status === 'ready') && (
-          <>
-            <div>
-              <div className="text-[10px] uppercase tracking-wider text-text-dim">
-                {result?.mode === 'projection' ? 'Projected return' : 'Total return'}
-              </div>
-              <div
-                className={`mt-0.5 font-mono text-2xl font-medium tabular-nums ${
-                  status === 'loading'
-                    ? 'text-text-dim'
-                    : positive
-                      ? 'text-positive'
-                      : 'text-negative'
-                }`}
-              >
-                {result
-                  ? `${positive ? '+' : ''}${result.totalReturnPct.toFixed(2)}%`
-                  : '—'}
-              </div>
-              <div
-                className={`font-mono text-xs tabular-nums ${
-                  status === 'loading'
-                    ? 'text-text-dim'
-                    : positive
-                      ? 'text-positive'
-                      : 'text-negative'
-                }`}
-              >
-                {result
-                  ? `${positive ? '+' : '-'}${fmtMoney(Math.abs(result.totalReturnDollars))}`
-                  : ''}
-              </div>
+      <AnimatedHeight>
+        <div className="space-y-3 p-3">
+          {status === 'idle' && (
+            <div className="rounded-md border border-dashed border-border bg-surface-2/50 px-3 py-6 text-center text-[11px] text-text-dim">
+              Connect Stock nodes → Timeline → here
             </div>
+          )}
 
-            {chart && (
-              <div className="nodrag nowheel h-28">
-                <Liveline
-                  data={chart.points}
-                  value={chart.points[chart.points.length - 1].value}
-                  color={positive ? '#10b981' : '#ef4444'}
-                  theme="dark"
-                  grid={false}
-                  badgeVariant="minimal"
-                  window={chart.span}
-                  loading={status === 'loading'}
-                  formatValue={fmtMoney}
-                  formatTime={(t) =>
-                    new Date((t - chart.offset) * 1000).toLocaleDateString(
-                      undefined,
-                      { month: 'short', year: '2-digit' },
-                    )
-                  }
-                />
-              </div>
-            )}
+          {status === 'error' && (
+            <div className="rounded-md border border-negative/40 bg-negative/10 px-3 py-3 text-center text-[11px] text-negative">
+              {errMsg ?? 'Failed to compute'}
+            </div>
+          )}
 
-            <div className="grid grid-cols-2 gap-2 border-t border-border pt-3">
+          {(status === 'loading' || status === 'ready') && (
+            <>
               <div>
                 <div className="text-[10px] uppercase tracking-wider text-text-dim">
-                  Invested
+                  {result?.mode === 'projection' ? 'Projected return' : 'Total return'}
                 </div>
-                <div className="font-mono text-sm tabular-nums text-text">
-                  {result ? fmtMoney(result.invested) : '—'}
+                <div
+                  className={`mt-0.5 font-mono text-2xl font-medium tabular-nums ${
+                    status === 'loading'
+                      ? 'text-text-dim'
+                      : positive
+                        ? 'text-positive'
+                        : 'text-negative'
+                  }`}
+                >
+                  {result
+                    ? `${positive ? '+' : ''}${result.totalReturnPct.toFixed(2)}%`
+                    : '—'}
+                </div>
+                <div
+                  className={`font-mono text-xs tabular-nums ${
+                    status === 'loading'
+                      ? 'text-text-dim'
+                      : positive
+                        ? 'text-positive'
+                        : 'text-negative'
+                  }`}
+                >
+                  {result
+                    ? `${positive ? '+' : '-'}${fmtMoney(Math.abs(result.totalReturnDollars))}`
+                    : ''}
                 </div>
               </div>
-              <div>
-                <div className="text-[10px] uppercase tracking-wider text-text-dim">
-                  {result?.mode === 'projection' ? 'Projected' : 'Ending'}
-                </div>
-                <div className="font-mono text-sm tabular-nums text-text">
-                  {result ? fmtMoney(result.endingValue) : '—'}
-                </div>
-              </div>
-            </div>
 
-            {result && result.positions.length > 0 && (
-              <div className="border-t border-border pt-3">
-                <div className="mb-2 text-[10px] uppercase tracking-wider text-text-dim">
-                  Holdings
+              {chart && (
+                <div className="nodrag nowheel h-28">
+                  <Liveline
+                    data={chart.points}
+                    value={chart.points[chart.points.length - 1].value}
+                    color={positive ? '#10b981' : '#ef4444'}
+                    theme="dark"
+                    grid={false}
+                    badgeVariant="minimal"
+                    window={chart.span}
+                    loading={status === 'loading'}
+                    formatValue={fmtMoney}
+                    formatTime={(t) =>
+                      new Date((t - chart.offset) * 1000).toLocaleDateString(
+                        undefined,
+                        { month: 'short', year: '2-digit' },
+                      )
+                    }
+                  />
                 </div>
-                <div className="space-y-1">
-                  {result.positions.map((p) => {
-                    const posPos = p.returnPct >= 0
-                    return (
-                      <div
-                        key={p.ticker}
-                        className="flex items-center justify-between text-xs"
-                      >
-                        <span className="font-mono font-medium text-text">
-                          {p.ticker}
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <span className="font-mono text-text-dim tabular-nums">
-                            {fmtMoney(p.allocation)}
+              )}
+
+              <div className="grid grid-cols-2 gap-2 border-t border-border pt-3">
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider text-text-dim">
+                    Invested
+                  </div>
+                  <div className="font-mono text-sm tabular-nums text-text">
+                    {result ? fmtMoney(result.invested) : '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider text-text-dim">
+                    {result?.mode === 'projection' ? 'Projected' : 'Ending'}
+                  </div>
+                  <div className="font-mono text-sm tabular-nums text-text">
+                    {result ? fmtMoney(result.endingValue) : '—'}
+                  </div>
+                </div>
+              </div>
+
+              {result && result.positions.length > 0 && (
+                <div className="border-t border-border pt-3">
+                  <div className="mb-2 text-[10px] uppercase tracking-wider text-text-dim">
+                    Holdings
+                  </div>
+                  <div className="space-y-1">
+                    {result.positions.map((p) => {
+                      const posPos = p.returnPct >= 0
+                      return (
+                        <div
+                          key={p.ticker}
+                          className="flex items-center justify-between text-xs"
+                        >
+                          <span className="font-mono font-medium text-text">
+                            {p.ticker}
                           </span>
-                          <span
-                            className={`font-mono tabular-nums ${
-                              posPos ? 'text-positive' : 'text-negative'
-                            }`}
-                          >
-                            {posPos ? '+' : ''}
-                            {p.returnPct.toFixed(1)}%
-                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className="font-mono text-text-dim tabular-nums">
+                              {fmtMoney(p.allocation)}
+                            </span>
+                            <span
+                              className={`font-mono tabular-nums ${
+                                posPos ? 'text-positive' : 'text-negative'
+                              }`}
+                            >
+                              {posPos ? '+' : ''}
+                              {p.returnPct.toFixed(1)}%
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            <div className="flex items-center justify-between border-t border-border pt-2 text-[10px] uppercase tracking-wider text-text-dim">
-              <span>
-                {result?.mode === 'projection' ? 'Projection' : 'Backtest'} ·{' '}
-                {result?.timeframe ?? inputs.timeframe}
-              </span>
-              {isUsingMockData() && <span className="text-accent">Mock data</span>}
-            </div>
-          </>
-        )}
-      </div>
+              <div className="flex items-center justify-between border-t border-border pt-2 text-[10px] uppercase tracking-wider text-text-dim">
+                <span>
+                  {result?.mode === 'projection' ? 'Projection' : 'Backtest'} ·{' '}
+                  {result?.timeframe ?? inputs.timeframe}
+                </span>
+                {isUsingMockData() && <span className="text-accent">Mock data</span>}
+              </div>
+            </>
+          )}
+        </div>
+      </AnimatedHeight>
 
       <Handle type="target" position={Position.Left} />
     </div>

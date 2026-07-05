@@ -3,6 +3,7 @@ import type { StockNode as StockNodeT } from '../../lib/types'
 import { useGraphStore } from '../../store/graphStore'
 import { TickerSelect } from '../TickerSelect'
 import { getTickerInfo } from '../../lib/tickers'
+import { AnimatedHeight } from '../AnimatedHeight'
 
 export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
   const updateNodeData = useGraphStore((s) => s.updateNodeData)
@@ -21,74 +22,76 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
         <span className="h-1.5 w-1.5 rounded-full bg-accent" />
       </div>
 
-      <div className="space-y-3 p-3">
-        <div className={data.ticker ? 'grid grid-cols-2 gap-2' : ''}>
-          <div>
+      <AnimatedHeight>
+        <div className="space-y-3 p-3">
+          <div className={data.ticker ? 'grid grid-cols-2 gap-2' : ''}>
+            <div>
+              {data.ticker && (
+                <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
+                  Ticker
+                </span>
+              )}
+              <TickerSelect
+                value={data.ticker}
+                onChange={(ticker) =>
+                  updateNodeData<StockNodeT['data']>(id, { ticker })
+                }
+              />
+            </div>
+
             {data.ticker && (
-              <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
-                Ticker
-              </span>
+              <label className="block">
+                <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
+                  Allocation
+                </span>
+                <div className="flex items-center rounded-md border border-border bg-surface-2 focus-within:border-accent">
+                  <span className="pl-2 text-sm text-text-dim">$</span>
+                  <input
+                    type="number"
+                    min={0}
+                    step={100}
+                    value={data.allocation}
+                    onChange={(e) =>
+                      updateNodeData<StockNodeT['data']>(id, {
+                        allocation: Number(e.target.value) || 0,
+                      })
+                    }
+                    className="w-full bg-transparent px-2 py-1.5 text-sm text-text outline-none"
+                  />
+                </div>
+              </label>
             )}
-            <TickerSelect
-              value={data.ticker}
-              onChange={(ticker) =>
-                updateNodeData<StockNodeT['data']>(id, { ticker })
-              }
-            />
           </div>
 
-          {data.ticker && (
-            <label className="block">
-              <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
-                Allocation
-              </span>
-              <div className="flex items-center rounded-md border border-border bg-surface-2 focus-within:border-accent">
-                <span className="pl-2 text-sm text-text-dim">$</span>
-                <input
-                  type="number"
-                  min={0}
-                  step={100}
-                  value={data.allocation}
-                  onChange={(e) =>
-                    updateNodeData<StockNodeT['data']>(id, {
-                      allocation: Number(e.target.value) || 0,
-                    })
-                  }
-                  className="w-full bg-transparent px-2 py-1.5 text-sm text-text outline-none"
-                />
+          {!data.ticker && (
+            <p className="px-1 pb-1 text-center text-[10px] leading-snug text-text-dim">
+              Search and select a stock or ETF to get started
+            </p>
+          )}
+
+          {info && (
+            <div className="rounded-md bg-surface-2/60 px-2 py-1.5">
+              <div className="flex items-baseline gap-1.5">
+                <span className="truncate text-[11px] font-medium text-text-muted">
+                  {info.name}
+                </span>
+                <span
+                  className={`shrink-0 rounded px-1 py-px text-[9px] font-medium uppercase tracking-wider ${
+                    info.type === 'ETF'
+                      ? 'bg-accent-soft text-accent'
+                      : 'bg-surface-2 text-text-muted'
+                  }`}
+                >
+                  {info.type}
+                </span>
               </div>
-            </label>
+              <p className="mt-0.5 text-[10px] leading-snug text-text-dim">
+                {info.description}
+              </p>
+            </div>
           )}
         </div>
-
-        {!data.ticker && (
-          <p className="px-1 pb-1 text-center text-[10px] leading-snug text-text-dim">
-            Search and select a stock or ETF to get started
-          </p>
-        )}
-
-        {info && (
-          <div className="rounded-md bg-surface-2/60 px-2 py-1.5">
-            <div className="flex items-baseline gap-1.5">
-              <span className="truncate text-[11px] font-medium text-text-muted">
-                {info.name}
-              </span>
-              <span
-                className={`shrink-0 rounded px-1 py-px text-[9px] font-medium uppercase tracking-wider ${
-                  info.type === 'ETF'
-                    ? 'bg-accent-soft text-accent'
-                    : 'bg-surface-2 text-text-muted'
-                }`}
-              >
-                {info.type}
-              </span>
-            </div>
-            <p className="mt-0.5 text-[10px] leading-snug text-text-dim">
-              {info.description}
-            </p>
-          </div>
-        )}
-      </div>
+      </AnimatedHeight>
 
       <Handle type="source" position={Position.Right} />
     </div>

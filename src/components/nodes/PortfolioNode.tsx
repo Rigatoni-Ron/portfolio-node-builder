@@ -211,6 +211,9 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
                     badgeVariant="minimal"
                     window={chart.span}
                     loading={status === 'loading'}
+                    // default right padding reserves 80px for the badge —
+                    // far too much inside a 264px-wide node
+                    padding={{ top: 10, right: 52, bottom: 24, left: 6 }}
                     formatValue={fmtMoney}
                     formatTime={(t) =>
                       new Date((t - chart.offset) * 1000).toLocaleDateString(

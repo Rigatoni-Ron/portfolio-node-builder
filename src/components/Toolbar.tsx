@@ -4,6 +4,7 @@ import {
   Hand,
   Plus,
   TrendingUp,
+  Percent,
   CalendarRange,
   ChartPie,
 } from 'lucide-react'
@@ -25,13 +26,24 @@ const NODE_OPTIONS: {
 }[] = [
   {
     type: 'stock',
-    label: 'Stock',
+    label: 'Asset',
     icon: TrendingUp,
     build: (position) => ({
       id: makeId('stock'),
       type: 'stock',
       position,
       data: { ticker: '', allocation: 1000 },
+    }),
+  },
+  {
+    type: 'earn',
+    label: 'Earn',
+    icon: Percent,
+    build: (position) => ({
+      id: makeId('earn'),
+      type: 'earn',
+      position,
+      data: { strategy: 'hold', apr: 0 },
     }),
   },
   {

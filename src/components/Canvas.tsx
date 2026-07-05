@@ -13,6 +13,7 @@ import { useGraphStore } from '../store/graphStore'
 import { StockNode } from './nodes/StockNode'
 import { TimelineNode } from './nodes/TimelineNode'
 import { PortfolioNode } from './nodes/PortfolioNode'
+import { EarnNode } from './nodes/EarnNode'
 import { GroupNode } from './nodes/GroupNode'
 import { GlowEdge } from './edges/GlowEdge'
 import { Toolbar } from './Toolbar'
@@ -21,6 +22,7 @@ const nodeTypes = {
   stock: StockNode,
   timeline: TimelineNode,
   portfolio: PortfolioNode,
+  earn: EarnNode,
   group: GroupNode,
 }
 

@@ -2,6 +2,8 @@
 // Free tier: 800 requests/day, 8/min. We request 10y of monthly closes per ticker
 // and slice locally for shorter backtest windows + use full series for CAGR.
 
+import { getTickerInfo } from './tickers'
+
 const API_KEY = import.meta.env.VITE_TWELVE_DATA_KEY as string | undefined
 const CACHE_PREFIX = 'td:v1:'
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24h
@@ -102,7 +104,8 @@ function generateMockBars(ticker: string, months = 120): PriceBar[] {
 async function fetchLive(ticker: string): Promise<PriceBar[]> {
   if (!API_KEY) throw new Error('No API key')
   const url = new URL('https://api.twelvedata.com/time_series')
-  url.searchParams.set('symbol', ticker)
+  // Crypto and spot commodities use pair symbols on Twelve Data
+  url.searchParams.set('symbol', getTickerInfo(ticker)?.apiSymbol ?? ticker)
   url.searchParams.set('interval', '1month')
   url.searchParams.set('outputsize', '120')
   url.searchParams.set('order', 'ASC')

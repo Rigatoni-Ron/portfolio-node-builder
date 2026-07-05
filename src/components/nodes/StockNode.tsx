@@ -2,7 +2,7 @@ import { Handle, Position, type NodeProps } from '@xyflow/react'
 import type { StockNode as StockNodeT } from '../../lib/types'
 import { useGraphStore } from '../../store/graphStore'
 import { TickerSelect } from '../TickerSelect'
-import { getTickerInfo } from '../../lib/tickers'
+import { getTickerInfo, TICKER_BADGE_CLASSES } from '../../lib/tickers'
 import { AnimatedHeight } from '../AnimatedHeight'
 
 export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
@@ -25,7 +25,7 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
     >
       <div className="border-b border-border px-3 py-2">
         <span className="text-[11px] font-medium uppercase tracking-wider text-text-muted">
-          Stock / ETF
+          Asset
         </span>
       </div>
 
@@ -72,7 +72,7 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
 
           {!data.ticker && (
             <p className="px-1 pb-1 text-center text-[10px] leading-snug text-text-dim">
-              Search and select a stock or ETF to get started
+              Search and select a stock, ETF, or digital asset to get started
             </p>
           )}
 
@@ -83,11 +83,7 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
                   {info.name}
                 </span>
                 <span
-                  className={`shrink-0 rounded px-1 py-px text-[9px] font-medium uppercase tracking-wider ${
-                    info.type === 'ETF'
-                      ? 'bg-accent-soft text-accent'
-                      : 'bg-surface-2 text-text-muted'
-                  }`}
+                  className={`shrink-0 rounded px-1 py-px text-[9px] font-medium uppercase tracking-wider ${TICKER_BADGE_CLASSES[info.type]}`}
                 >
                   {info.type}
                 </span>
@@ -100,7 +96,7 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
 
           {feedsPortfolio && (
             <p className="rounded-md border border-negative/40 bg-negative/10 px-2 py-1.5 text-[10px] leading-snug text-negative">
-              A stock can't feed a Portfolio directly — connect it to a
+              An asset can't feed a Portfolio directly — connect it to a
               Timeline node instead.
             </p>
           )}

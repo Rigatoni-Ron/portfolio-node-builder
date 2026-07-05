@@ -1,7 +1,11 @@
 import type { Timeframe, TimelineMode } from './types'
 import { getPriceSeries, type PriceBar, type PriceSource } from './twelveData'
 
-export type Position = { ticker: string; allocation: number }
+export type Position = {
+  ticker: string
+  allocation: number
+  yieldApr?: number // annual % from an Earn node (stake/lend/borrow), 0 = plain hold
+}
 
 export type SeriesPoint = {
   date: string // ISO yyyy-mm-dd
@@ -48,18 +52,21 @@ function backtestReturn(bars: PriceBar[], years: number): number {
   return (last - first) / first
 }
 
-// Position dollar value at each month of the backtest window.
+// Position dollar value at each month of the backtest window, with any
+// Earn yield compounding monthly on top of the price move.
 function backtestSeries(
   bars: PriceBar[],
   years: number,
   allocation: number,
+  yieldApr: number,
 ): SeriesPoint[] {
   const window = trailingMonths(bars, years * 12)
   const first = window[0]?.close
   if (!first || first <= 0 || window.length < 2) return []
-  return window.map((b) => ({
+  const monthlyYield = Math.pow(1 + yieldApr / 100, 1 / 12)
+  return window.map((b, i) => ({
     date: b.date,
-    value: allocation * (b.close / first),
+    value: allocation * (b.close / first) * Math.pow(monthlyYield, i),
   }))
 }
 
@@ -105,10 +112,13 @@ export async function computePortfolio(
     valid.map(async (p): Promise<PositionResult> => {
       try {
         const series = await getPriceSeries(p.ticker)
-        const ret =
+        const apr = p.yieldApr ?? 0
+        const baseRet =
           mode === 'backtest'
             ? backtestReturn(series.bars, years)
             : projectionReturn(series.bars, years)
+        // Earn yield compounds on top of the price return
+        const ret = (1 + baseRet) * Math.pow(1 + apr / 100, years) - 1
         const endingValue = p.allocation * (1 + ret)
         return {
           ticker: p.ticker.toUpperCase(),
@@ -118,7 +128,7 @@ export async function computePortfolio(
           source: series.source,
           series:
             mode === 'backtest'
-              ? backtestSeries(series.bars, years, p.allocation)
+              ? backtestSeries(series.bars, years, p.allocation, apr)
               : projectionSeries(ret, years, p.allocation),
         }
       } catch (err) {

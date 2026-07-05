@@ -7,7 +7,11 @@ import type {
   TimelineNode,
 } from '../../lib/types'
 import { useGraphStore } from '../../store/graphStore'
-import { computePortfolio, type PortfolioResult } from '../../lib/portfolioMath'
+import {
+  computePortfolio,
+  type PortfolioResult,
+  type Position as PortfolioPosition,
+} from '../../lib/portfolioMath'
 import { isUsingMockData } from '../../lib/twelveData'
 import { AnimatedHeight } from '../AnimatedHeight'
 
@@ -15,7 +19,7 @@ type Inputs = {
   timelineId: string | null
   mode: TimelineNode['data']['mode'] | null
   timeframe: TimelineNode['data']['timeframe'] | null
-  positions: { ticker: string; allocation: number }[]
+  positions: PortfolioPosition[]
 }
 
 function useInputs(portfolioId: string): Inputs {
@@ -38,21 +42,33 @@ function useInputs(portfolioId: string): Inputs {
       return { timelineId: null, mode: null, timeframe: null, positions: [] }
     }
 
-    const stockEdges = edges.filter((e) => e.target === timeline.id)
-    const positions = stockEdges
-      .map((e) => nodes.find((n) => n.id === e.source))
-      .filter((n): n is StockNode => n?.type === 'stock')
-      .map((n) => ({
-        ticker: n.data.ticker.trim().toUpperCase(),
-        allocation: n.data.allocation,
-      }))
-      .filter((p) => p.ticker && p.allocation > 0)
+    const toPosition = (n: StockNode, yieldApr: number): PortfolioPosition => ({
+      ticker: n.data.ticker.trim().toUpperCase(),
+      allocation: n.data.allocation,
+      yieldApr,
+    })
+
+    // Assets feed the timeline directly, or through an Earn node that
+    // layers a yield APR on top of the asset's price return.
+    const positions: PortfolioPosition[] = []
+    for (const e of edges.filter((x) => x.target === timeline.id)) {
+      const src = nodes.find((n) => n.id === e.source)
+      if (src?.type === 'stock') {
+        positions.push(toPosition(src, 0))
+      } else if (src?.type === 'earn') {
+        const apr = src.data.strategy === 'hold' ? 0 : src.data.apr
+        for (const e2 of edges.filter((x) => x.target === src.id)) {
+          const asset = nodes.find((n) => n.id === e2.source)
+          if (asset?.type === 'stock') positions.push(toPosition(asset, apr))
+        }
+      }
+    }
 
     return {
       timelineId: timeline.id,
       mode: timeline.data.mode,
       timeframe: timeline.data.timeframe,
-      positions,
+      positions: positions.filter((p) => p.ticker && p.allocation > 0),
     }
   }, [portfolioId, nodes, edges])
 }

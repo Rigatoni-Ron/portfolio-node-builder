@@ -15,6 +15,13 @@ export type TimelineNodeData = {
 
 export type PortfolioNodeData = Record<string, never>
 
+export type EarnStrategy = 'hold' | 'stake' | 'lend' | 'borrow'
+
+export type EarnNodeData = {
+  strategy: EarnStrategy
+  apr: number // annual percent yield applied on top of price returns
+}
+
 export type GroupNodeData = {
   label: string
   color?: string // one of GROUP_COLORS; undefined falls back to neutral
@@ -23,7 +30,13 @@ export type GroupNodeData = {
 export type StockNode = Node<StockNodeData, 'stock'>
 export type TimelineNode = Node<TimelineNodeData, 'timeline'>
 export type PortfolioNode = Node<PortfolioNodeData, 'portfolio'>
+export type EarnNode = Node<EarnNodeData, 'earn'>
 export type GroupNode = Node<GroupNodeData, 'group'>
 
-export type AppNode = StockNode | TimelineNode | PortfolioNode | GroupNode
+export type AppNode =
+  | StockNode
+  | TimelineNode
+  | PortfolioNode
+  | EarnNode
+  | GroupNode
 export type AppEdge = Edge

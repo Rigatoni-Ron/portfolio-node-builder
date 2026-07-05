@@ -1,13 +1,22 @@
-// Curated catalog of popular stocks and ETFs for the ticker picker.
+// Curated catalog of popular assets for the ticker picker.
 // Not exhaustive — the picker also allows free-form entry for anything else.
 
-export type TickerType = 'ETF' | 'Stock'
+export type TickerType = 'ETF' | 'Stock' | 'Crypto' | 'Commodity'
 
 export type TickerInfo = {
   symbol: string
   name: string
   type: TickerType
   description: string
+  apiSymbol?: string // Twelve Data symbol when it differs (e.g. BTC/USD)
+}
+
+// Badge tint per asset class, shared by the picker and the asset node
+export const TICKER_BADGE_CLASSES: Record<TickerType, string> = {
+  ETF: 'bg-accent-soft text-accent',
+  Stock: 'bg-surface-2 text-text-muted',
+  Crypto: 'bg-orange-500/15 text-orange-400',
+  Commodity: 'bg-yellow-500/15 text-yellow-500',
 }
 
 export const TICKERS: TickerInfo[] = [
@@ -62,6 +71,25 @@ export const TICKERS: TickerInfo[] = [
   { symbol: 'GLD', name: 'SPDR Gold Shares', type: 'ETF', description: 'Tracks the price of gold bullion' },
   { symbol: 'SLV', name: 'iShares Silver Trust', type: 'ETF', description: 'Tracks the price of silver' },
   { symbol: 'IBIT', name: 'iShares Bitcoin Trust', type: 'ETF', description: 'Tracks the price of Bitcoin' },
+
+  // --- Digital assets ---
+  { symbol: 'BTC', name: 'Bitcoin', type: 'Crypto', description: 'The original cryptocurrency, digital store of value', apiSymbol: 'BTC/USD' },
+  { symbol: 'ETH', name: 'Ethereum', type: 'Crypto', description: 'Smart-contract platform behind most of DeFi and NFTs', apiSymbol: 'ETH/USD' },
+  { symbol: 'SOL', name: 'Solana', type: 'Crypto', description: 'High-throughput blockchain for apps and payments', apiSymbol: 'SOL/USD' },
+  { symbol: 'HYPE', name: 'Hyperliquid', type: 'Crypto', description: 'Token of the Hyperliquid on-chain trading exchange', apiSymbol: 'HYPE/USD' },
+  { symbol: 'BNB', name: 'BNB', type: 'Crypto', description: 'Binance exchange and ecosystem token', apiSymbol: 'BNB/USD' },
+  { symbol: 'XRP', name: 'XRP', type: 'Crypto', description: 'Payments token for cross-border transfers', apiSymbol: 'XRP/USD' },
+  { symbol: 'DOGE', name: 'Dogecoin', type: 'Crypto', description: 'Meme coin turned mainstream payment token', apiSymbol: 'DOGE/USD' },
+  { symbol: 'ADA', name: 'Cardano', type: 'Crypto', description: 'Research-driven proof-of-stake blockchain', apiSymbol: 'ADA/USD' },
+  { symbol: 'AVAX', name: 'Avalanche', type: 'Crypto', description: 'Fast smart-contract chain with subnets', apiSymbol: 'AVAX/USD' },
+  { symbol: 'LINK', name: 'Chainlink', type: 'Crypto', description: 'Oracle network feeding real-world data on-chain', apiSymbol: 'LINK/USD' },
+  { symbol: 'DOT', name: 'Polkadot', type: 'Crypto', description: 'Interoperability network connecting blockchains', apiSymbol: 'DOT/USD' },
+  { symbol: 'LTC', name: 'Litecoin', type: 'Crypto', description: 'Early Bitcoin fork focused on cheap payments', apiSymbol: 'LTC/USD' },
+  { symbol: 'USDC', name: 'USD Coin', type: 'Crypto', description: 'Dollar-pegged stablecoin — pair with Lend for yield', apiSymbol: 'USDC/USD' },
+
+  // --- Commodities (spot) ---
+  { symbol: 'XAU', name: 'Gold', type: 'Commodity', description: 'Spot price of gold per troy ounce', apiSymbol: 'XAU/USD' },
+  { symbol: 'XAG', name: 'Silver', type: 'Commodity', description: 'Spot price of silver per troy ounce', apiSymbol: 'XAG/USD' },
 
   // --- Mega-cap tech stocks ---
   { symbol: 'AAPL', name: 'Apple Inc.', type: 'Stock', description: 'iPhone, Mac, and services giant' },

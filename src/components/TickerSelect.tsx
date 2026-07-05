@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { TICKERS, type TickerInfo } from '../lib/tickers'
+import { TICKERS, TICKER_BADGE_CLASSES, type TickerInfo } from '../lib/tickers'
 
 type Props = {
   value: string
@@ -127,11 +127,7 @@ export function TickerSelect({ value, onChange }: Props) {
                     {t.symbol}
                   </span>
                   <span
-                    className={`rounded px-1 py-px text-[9px] font-medium uppercase tracking-wider ${
-                      t.type === 'ETF'
-                        ? 'bg-accent-soft text-accent'
-                        : 'bg-surface-2 text-text-muted'
-                    }`}
+                    className={`rounded px-1 py-px text-[9px] font-medium uppercase tracking-wider ${TICKER_BADGE_CLASSES[t.type]}`}
                   >
                     {t.type}
                   </span>

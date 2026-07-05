@@ -7,15 +7,17 @@ type NodeKind = NonNullable<AppNode['type']>
 // plus typical content height).
 const FALLBACK_SIZE: Record<NodeKind, { width: number; height: number }> = {
   stock: { width: 256, height: 185 },
+  earn: { width: 240, height: 140 },
   timeline: { width: 240, height: 185 },
   portfolio: { width: 288, height: 230 },
   group: { width: 320, height: 240 },
 }
 
-// Preferred column per node type, matching the seed layout (stocks feed
-// timelines feed portfolios, left to right).
+// Preferred column per node type, matching the seed layout (assets feed
+// earn/timelines feed portfolios, left to right).
 const COLUMN_X: Record<NodeKind, number> = {
   stock: 80,
+  earn: 380,
   timeline: 480,
   portfolio: 860,
   group: 80, // groups are never placed via toolbar; keep the record total

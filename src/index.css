@@ -70,23 +70,25 @@ input[type="number"]::-webkit-outer-spin-button {
   border-radius: 0;
   box-shadow: none;
 }
-.react-flow__edge-path {
-  stroke: var(--color-border-strong);
+.react-flow .react-flow__edge-path {
+  stroke: var(--color-border);
   stroke-width: 1.5;
 }
 .react-flow__edge.selected .react-flow__edge-path,
 .react-flow__edge:focus .react-flow__edge-path {
   stroke: var(--color-accent);
 }
-.react-flow__handle {
-  width: 10px;
-  height: 10px;
+.react-flow .react-flow__handle {
+  width: 16px;
+  height: 16px;
   background: var(--color-surface-2);
-  border: 1.5px solid var(--color-border-strong);
+  border: 2px solid var(--color-border-strong);
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
-.react-flow__handle:hover {
+.react-flow .react-flow__handle:hover {
   background: var(--color-accent);
   border-color: var(--color-accent);
+  transform: scale(1.25);
 }
 .react-flow__controls {
   /* xyflow theming variables — these beat the library stylesheet regardless

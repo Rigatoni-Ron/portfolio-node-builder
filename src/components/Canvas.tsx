@@ -14,6 +14,7 @@ import { StockNode } from './nodes/StockNode'
 import { TimelineNode } from './nodes/TimelineNode'
 import { PortfolioNode } from './nodes/PortfolioNode'
 import { GroupNode } from './nodes/GroupNode'
+import { GlowEdge } from './edges/GlowEdge'
 import { Toolbar } from './Toolbar'
 
 const nodeTypes = {
@@ -21,6 +22,11 @@ const nodeTypes = {
   timeline: TimelineNode,
   portfolio: PortfolioNode,
   group: GroupNode,
+}
+
+// Overriding "default" makes every typeless edge render with the glow pulse
+const edgeTypes = {
+  default: GlowEdge,
 }
 
 function CanvasInner() {
@@ -45,7 +51,9 @@ function CanvasInner() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         defaultEdgeOptions={defaultEdgeOptions}
+        connectionRadius={36}
         fitView
         proOptions={{ hideAttribution: false }}
         // Figma-style controls: left-drag marquee-selects, trackpad scroll

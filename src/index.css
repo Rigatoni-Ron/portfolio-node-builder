@@ -37,6 +37,11 @@ input, select, button {
   color: inherit;
 }
 
+/* Every enabled button feels pressable, matching the zoom controls */
+button:not(:disabled) {
+  cursor: pointer;
+}
+
 /* Hide number input spinners (allocation fields) */
 input[type="number"] {
   appearance: textfield;

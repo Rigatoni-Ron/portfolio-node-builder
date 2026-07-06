@@ -76,12 +76,12 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
 
           {info && (
             <div className="rounded-md bg-surface-2/60 p-2">
-              <div className="flex items-baseline gap-1">
-                <span className="truncate text-[11px] font-medium text-text-muted">
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="min-w-0 flex-1 truncate text-[11px] font-medium text-text-muted">
                   {info.name}
                 </span>
                 <span
-                  className={`shrink-0 rounded px-1 py-px text-[11px] font-medium uppercase tracking-wider ${TICKER_BADGE_CLASSES[info.type]}`}
+                  className={`shrink-0 rounded px-1 py-px text-[11px] font-medium ${TICKER_BADGE_CLASSES[info.type]}`}
                 >
                   {info.type}
                 </span>

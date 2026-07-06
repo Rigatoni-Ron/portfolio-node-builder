@@ -90,7 +90,7 @@ function ToolButton({
       onClick={onClick}
       className={`rounded-lg p-2 transition-colors ${
         active
-          ? 'bg-accent text-white'
+          ? 'bg-accent/20 text-accent'
           : 'text-text-muted hover:bg-surface-2 hover:text-text'
       }`}
     >

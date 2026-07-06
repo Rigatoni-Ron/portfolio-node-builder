@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { motion } from 'motion/react'
 import {
   MousePointer2,
   Hand,
@@ -10,6 +12,7 @@ import {
   LayoutGrid,
 } from 'lucide-react'
 import { AnimatedWidth } from './AnimatedWidth'
+import { useMeasure } from '../lib/useMeasure'
 import { useGraphStore, type CanvasTool } from '../store/graphStore'
 import type { AppNode } from '../lib/types'
 import { findFreePosition } from '../lib/placement'
@@ -79,14 +82,17 @@ function ToolButton({
   title,
   onClick,
   children,
+  ref,
 }: {
   active: boolean
   title: string
   onClick: () => void
   children: React.ReactNode
+  ref?: React.Ref<HTMLButtonElement>
 }) {
   return (
     <button
+      ref={ref}
       title={title}
       onClick={onClick}
       className={`rounded-lg p-2 transition-colors ${
@@ -111,6 +117,16 @@ export function Toolbar() {
 
   const [addOpen, setAddOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
+
+  // Animate the pill's width as buttons appear/disappear on selection change.
+  // Clipped at all times so appearing buttons never spill before the pill
+  // grows; the add menu is portaled out so the clip doesn't cut it off.
+  const [measureRef, bounds] = useMeasure<HTMLDivElement>()
+  const addBtnRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [menuPos, setMenuPos] = useState<{ left: number; top: number } | null>(
+    null,
+  )
 
   // "Clear all" needs a second click within 2.5s to actually clear the canvas
   const [confirmClear, setConfirmClear] = useState(false)
@@ -142,13 +158,22 @@ export function Toolbar() {
     return () => window.removeEventListener('keydown', onKey)
   }, [setTool])
 
-  // Close the add menu on outside click
+  // Anchor the portaled add menu under its button
+  useLayoutEffect(() => {
+    if (addOpen && addBtnRef.current) {
+      const r = addBtnRef.current.getBoundingClientRect()
+      setMenuPos({ left: r.left, top: r.bottom + 8 })
+    }
+  }, [addOpen])
+
+  // Close the add menu on outside click (the menu is portaled, so check it too)
   useEffect(() => {
     if (!addOpen) return
     const onDown = (e: PointerEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-        setAddOpen(false)
-      }
+      const target = e.target as Node
+      if (rootRef.current?.contains(target) || menuRef.current?.contains(target))
+        return
+      setAddOpen(false)
     }
     document.addEventListener('pointerdown', onDown)
     return () => document.removeEventListener('pointerdown', onDown)
@@ -180,10 +205,14 @@ export function Toolbar() {
   }
 
   return (
-    <div
-      ref={rootRef}
-      className="pointer-events-auto absolute left-4 top-4 z-10 flex items-center gap-1 rounded-xl border border-border bg-surface/95 p-1 shadow-lg backdrop-blur"
-    >
+    <div ref={rootRef} className="absolute left-4 top-4 z-10">
+      <motion.div
+        className="pointer-events-auto overflow-hidden rounded-xl border border-border bg-surface/95 shadow-lg backdrop-blur"
+        initial={false}
+        animate={bounds.width > 0 ? { width: bounds.width } : undefined}
+        transition={{ duration: 0.22, ease: 'easeInOut' }}
+      >
+        <div ref={measureRef} className="flex w-max items-center gap-1 p-1">
       <ToolButton
         active={tool === 'select' && !addOpen}
         title="Select — V"
@@ -200,30 +229,14 @@ export function Toolbar() {
         <Hand size={16} />
       </ToolButton>
 
-      <div className="relative">
-        <ToolButton
-          active={addOpen}
-          title="Add node — A"
-          onClick={() => setAddOpen((o) => !o)}
-        >
-          <Plus size={16} />
-        </ToolButton>
-
-        {addOpen && (
-          <div className="absolute left-0 top-full z-50 mt-2 w-40 rounded-lg border border-border bg-surface p-1 shadow-xl">
-            {NODE_OPTIONS.map((option) => (
-              <button
-                key={option.type}
-                onClick={() => addNodeOfType(option)}
-                className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-[11px] font-medium text-text-muted transition-colors hover:bg-surface-2 hover:text-text"
-              >
-                <option.icon size={14} className="text-text-muted" />
-                {option.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      <ToolButton
+        ref={addBtnRef}
+        active={addOpen}
+        title="Add node — A"
+        onClick={() => setAddOpen((o) => !o)}
+      >
+        <Plus size={16} />
+      </ToolButton>
 
       {groupableCount >= 2 && (
         <>
@@ -268,6 +281,30 @@ export function Toolbar() {
           </span>
         </AnimatedWidth>
       </button>
+        </div>
+      </motion.div>
+
+      {addOpen &&
+        menuPos &&
+        createPortal(
+          <div
+            ref={menuRef}
+            style={{ position: 'fixed', left: menuPos.left, top: menuPos.top }}
+            className="pointer-events-auto z-50 w-40 rounded-lg border border-border bg-surface p-1 shadow-xl"
+          >
+            {NODE_OPTIONS.map((option) => (
+              <button
+                key={option.type}
+                onClick={() => addNodeOfType(option)}
+                className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-[11px] font-medium text-text-muted transition-colors hover:bg-surface-2 hover:text-text"
+              >
+                <option.icon size={14} className="text-text-muted" />
+                {option.label}
+              </button>
+            ))}
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }

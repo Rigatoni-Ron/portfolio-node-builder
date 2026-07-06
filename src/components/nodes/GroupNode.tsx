@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from 'react'
 import type { NodeProps } from '@xyflow/react'
 import type { GroupNode as GroupNodeT } from '../../lib/types'
 import { useGraphStore } from '../../store/graphStore'
@@ -11,6 +12,14 @@ export function GroupNode({ id, data, selected }: NodeProps<GroupNodeT>) {
   const ungroup = useGraphStore((s) => s.ungroup)
   const color = data.color ?? DEFAULT_GROUP_COLOR
 
+  // Size the input to its text. `ch` under-measures uppercase + letter-spaced
+  // labels, so mirror the text in a hidden span and use its real width.
+  const mirrorRef = useRef<HTMLSpanElement>(null)
+  const [labelWidth, setLabelWidth] = useState(0)
+  useLayoutEffect(() => {
+    if (mirrorRef.current) setLabelWidth(mirrorRef.current.offsetWidth)
+  }, [data.label])
+
   return (
     <div className="relative h-full w-full">
       <div className="absolute -top-8 left-0 flex items-center gap-2">
@@ -18,6 +27,13 @@ export function GroupNode({ id, data, selected }: NodeProps<GroupNodeT>) {
           className="flex items-center rounded-md px-2 py-1"
           style={{ backgroundColor: `${color}26` }}
         >
+          <span
+            ref={mirrorRef}
+            aria-hidden
+            className="pointer-events-none invisible absolute whitespace-pre text-[11px] font-medium uppercase tracking-wider"
+          >
+            {data.label || 'Section'}
+          </span>
           <input
             value={data.label}
             onChange={(e) =>
@@ -25,7 +41,7 @@ export function GroupNode({ id, data, selected }: NodeProps<GroupNodeT>) {
             }
             placeholder="Section"
             spellCheck={false}
-            style={{ color, width: `${Math.max(data.label.length, 7)}ch` }}
+            style={{ color, width: labelWidth + 2 }}
             className="nodrag bg-transparent text-[11px] font-medium uppercase tracking-wider outline-none placeholder:text-text-muted"
           />
         </div>

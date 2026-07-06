@@ -7,6 +7,7 @@ import {
   Percent,
   CalendarRange,
   ChartPie,
+  LayoutGrid,
 } from 'lucide-react'
 import { AnimatedWidth } from './AnimatedWidth'
 import { useGraphStore, type CanvasTool } from '../store/graphStore'
@@ -105,6 +106,7 @@ export function Toolbar() {
   const addNode = useGraphStore((s) => s.addNode)
   const clearGraph = useGraphStore((s) => s.clearGraph)
   const groupNodes = useGraphStore((s) => s.groupNodes)
+  const tidyNodes = useGraphStore((s) => s.tidyNodes)
   const groupableCount = useGraphStore((s) => s.nodes.filter(groupable).length)
 
   const [addOpen, setAddOpen] = useState(false)
@@ -226,6 +228,17 @@ export function Toolbar() {
       {groupableCount >= 2 && (
         <>
           <div className="h-4 w-px bg-border" />
+          <button
+            title="Tidy up"
+            onClick={() =>
+              tidyNodes(
+                useGraphStore.getState().nodes.filter(groupable).map((n) => n.id),
+              )
+            }
+            className="rounded-lg p-2 text-accent transition-colors hover:bg-accent-soft"
+          >
+            <LayoutGrid size={16} />
+          </button>
           <button
             onClick={() =>
               groupNodes(

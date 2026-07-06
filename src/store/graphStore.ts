@@ -10,6 +10,7 @@ import {
 } from '@xyflow/react'
 import type { AppNode, AppEdge } from '../lib/types'
 import { DEFAULT_GROUP_COLOR } from '../lib/groupColors'
+import { FLOW_ORDER, nodeSize } from '../lib/placement'
 
 export type CanvasTool = 'select' | 'hand'
 
@@ -27,6 +28,7 @@ type GraphState = {
   groupNodes: (ids: string[], label?: string) => void
   ungroup: (groupId: string) => void
   duplicateNodes: (ids: string[]) => void
+  tidyNodes: (ids: string[]) => void
   clearGraph: () => void
   resetGraph: () => void
 }
@@ -236,6 +238,55 @@ export const useGraphStore = create<GraphState>()(
           }))
 
         set({ nodes: [...nodes, ...clones], edges: [...edges, ...cloneEdges] })
+      },
+      tidyNodes: (ids) => {
+        const nodes = get().nodes
+        const idSet = new Set(ids)
+        // Tidy only top-level, non-group nodes
+        const selected = nodes.filter(
+          (n) => idSet.has(n.id) && n.type !== 'group' && !n.parentId,
+        )
+        if (selected.length < 2) return
+
+        const COL_GAP = 64
+        const ROW_GAP = 32
+        // Anchor the tidied layout at the selection's current top-left so it
+        // doesn't jump across the canvas
+        const originX = Math.min(...selected.map((n) => n.position.x))
+        const originY = Math.min(...selected.map((n) => n.position.y))
+
+        // Bucket into columns by flow order (asset → earn → timeline → portfolio)
+        const columns = new Map<number, AppNode[]>()
+        for (const n of selected) {
+          const key = FLOW_ORDER[n.type ?? 'stock'] ?? 99
+          const col = columns.get(key) ?? []
+          col.push(n)
+          columns.set(key, col)
+        }
+
+        const newPos = new Map<string, { x: number; y: number }>()
+        let x = originX
+        for (const key of [...columns.keys()].sort((a, b) => a - b)) {
+          // Preserve each node's existing vertical order within its column
+          const colNodes = columns
+            .get(key)!
+            .slice()
+            .sort((a, b) => a.position.y - b.position.y)
+          const colWidth = Math.max(...colNodes.map((n) => nodeSize(n).width))
+          let y = originY
+          for (const n of colNodes) {
+            newPos.set(n.id, { x, y })
+            y += nodeSize(n).height + ROW_GAP
+          }
+          x += colWidth + COL_GAP
+        }
+
+        // Only positions change — nodes stay freely draggable afterwards
+        set({
+          nodes: nodes.map((n) =>
+            newPos.has(n.id) ? { ...n, position: newPos.get(n.id)! } : n,
+          ),
+        })
       },
       clearGraph: () => {
         set({ nodes: [], edges: [] })

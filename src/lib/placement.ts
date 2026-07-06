@@ -13,6 +13,22 @@ const FALLBACK_SIZE: Record<NodeKind, { width: number; height: number }> = {
   group: { width: 320, height: 240 },
 }
 
+// Column order along the data flow: assets → earn → timeline → portfolio.
+export const FLOW_ORDER: Record<NodeKind, number> = {
+  stock: 0,
+  earn: 1,
+  timeline: 2,
+  portfolio: 3,
+  group: 4,
+}
+
+// Rendered size when available, else the type fallback.
+export function nodeSize(n: AppNode): { width: number; height: number } {
+  return n.measured?.width && n.measured?.height
+    ? { width: n.measured.width, height: n.measured.height }
+    : FALLBACK_SIZE[n.type ?? 'stock']
+}
+
 // Preferred column per node type, matching the seed layout (assets feed
 // earn/timelines feed portfolios, left to right).
 const COLUMN_X: Record<NodeKind, number> = {

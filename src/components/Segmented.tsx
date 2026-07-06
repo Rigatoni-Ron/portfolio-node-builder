@@ -15,7 +15,7 @@ export function Segmented<T extends string>({
   const idx = Math.max(0, options.findIndex((o) => o.value === value))
 
   return (
-    <div className="rounded-md border border-border bg-surface-2 p-0.5">
+    <div className="rounded-md border border-border bg-surface-2 p-1">
       <div className="relative">
         <motion.div
           className="absolute inset-y-0 rounded bg-accent/20"
@@ -32,7 +32,7 @@ export function Segmented<T extends string>({
             <button
               key={o.value}
               onClick={() => onChange(o.value)}
-              className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
+              className={`rounded px-2 py-1 text-[11px] font-medium transition-colors ${
                 value === o.value
                   ? 'text-accent'
                   : 'text-text-muted hover:text-text'

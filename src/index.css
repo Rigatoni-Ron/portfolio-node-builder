@@ -6,16 +6,20 @@
   --color-surface-2: #1f2028;
   --color-border: #2a2b33;
   --color-border-strong: #3a3b45;
+  /* Two text colors only: near-white and a single gray. text-dim is kept
+     as an alias of the gray so any lingering usage stays on-palette. */
   --color-text: #e5e7eb;
   --color-text-muted: #9ca3af;
-  --color-text-dim: #6b6d78;
+  --color-text-dim: #9ca3af;
   --color-accent: #3b82f6;
   --color-accent-soft: rgba(59, 130, 246, 0.15);
   --color-positive: #10b981;
   --color-negative: #ef4444;
 
+  /* Two typefaces with a clear split: sans for language (labels, titles,
+     prose, buttons), Space Mono for data (tickers, dollar amounts, %). */
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Consolas, monospace;
+  --font-mono: "Space Mono", ui-monospace, "SF Mono", Consolas, monospace;
 }
 
 html, body, #root {
@@ -32,9 +36,13 @@ html, body, #root {
   color-scheme: dark;
 }
 
-input, select, button {
-  font-family: inherit;
-  color: inherit;
+/* Layered as base so Tailwind's font-* / text-* utilities (e.g. font-mono
+   on the numeric inputs) still override it. */
+@layer base {
+  input, select, button {
+    font-family: inherit;
+    color: inherit;
+  }
 }
 
 /* Every enabled button feels pressable, matching the zoom controls */

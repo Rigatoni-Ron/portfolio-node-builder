@@ -49,7 +49,7 @@ export function NumberField({ value, onChange, step, min, className }: Props) {
       value={draft}
       onChange={handleChange}
       onBlur={handleBlur}
-      className={className}
+      className={`font-mono ${className ?? ''}`}
     />
   )
 }

@@ -167,7 +167,7 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
           Portfolio
         </span>
         {inputs.mode && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-wider text-text-dim">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] uppercase tracking-wider text-text-muted">
             {inputs.mode === 'projection' ? 'Projection' : 'Backtest'} ·{' '}
             {inputs.timeframe}
           </span>
@@ -177,13 +177,13 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
       <AnimatedHeight>
         <div className="space-y-3 p-3">
           {status === 'idle' && (
-            <div className="rounded-md border border-dashed border-border bg-surface-2/50 px-3 py-6 text-center text-[11px] text-text-dim">
-              Connect Stock nodes → Timeline → here
+            <div className="rounded-md border border-dashed border-border bg-surface-2/50 p-4 text-center text-[11px] text-text-muted">
+              Connect Asset → Timeline → here
             </div>
           )}
 
           {status === 'error' && (
-            <div className="rounded-md border border-negative/40 bg-negative/10 px-3 py-3 text-center text-[11px] text-negative">
+            <div className="rounded-md border border-negative/40 bg-negative/10 p-3 text-center text-[11px] text-negative">
               {errMsg ?? 'Failed to compute'}
             </div>
           )}
@@ -216,8 +216,8 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
               )}
 
               {result && result.positions.length > 0 && (
-                <div className="rounded-md bg-surface-2/60 px-2 py-1.5">
-                  <div className="mb-2 text-[10px] uppercase tracking-wider text-text-dim">
+                <div className="rounded-md bg-surface-2/60 p-2">
+                  <div className="mb-2 text-[11px] uppercase tracking-wider text-text-muted">
                     Holdings
                   </div>
                   <div className="space-y-1">
@@ -226,12 +226,12 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
                       return (
                         <div
                           key={p.ticker}
-                          className="flex items-center justify-between text-xs"
+                          className="flex items-center justify-between text-[11px]"
                         >
-                          <span className="font-mono font-medium text-text">
+                          <span className="font-mono text-text">
                             {p.ticker}
                           </span>
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
                             <span
                               className={`font-mono tabular-nums ${
                                 posPos ? 'text-positive' : 'text-negative'
@@ -252,11 +252,11 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
               )}
 
               {result && (
-                <div className="rounded-md bg-surface-2/60 px-2 py-1.5">
-                  <div className="mb-2 text-[10px] uppercase tracking-wider text-text-dim">
+                <div className="rounded-md bg-surface-2/60 p-2">
+                  <div className="mb-2 text-[11px] uppercase tracking-wider text-text-muted">
                     Totals
                   </div>
-                  <div className="space-y-1 text-xs">
+                  <div className="space-y-1 text-[11px]">
                     <div className="flex items-center justify-between">
                       <span className="text-text-muted">Invested</span>
                       <span className="font-mono text-text tabular-nums">
@@ -285,7 +285,7 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
               )}
 
               {isUsingMockData() && (
-                <div className="text-center text-[10px] uppercase tracking-wider text-accent">
+                <div className="text-center text-[11px] uppercase tracking-wider text-text-muted">
                   Mock data
                 </div>
               )}

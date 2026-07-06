@@ -35,7 +35,7 @@ export function EarnNode({ id, data, selected }: NodeProps<EarnNodeT>) {
       <AnimatedHeight>
         <div className="space-y-3 p-3">
           <div>
-            <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-text-dim">
+            <span className="mb-1 block text-[11px] uppercase tracking-wider text-text-muted">
               Strategy
             </span>
             <Segmented
@@ -52,7 +52,7 @@ export function EarnNode({ id, data, selected }: NodeProps<EarnNodeT>) {
 
           {data.strategy !== 'hold' && (
             <label className="block">
-              <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
+              <span className="mb-1 block text-[11px] uppercase tracking-wider text-text-muted">
                 APR
               </span>
               <div className="flex items-center rounded-md border border-border bg-surface-2 focus-within:border-accent">
@@ -62,9 +62,9 @@ export function EarnNode({ id, data, selected }: NodeProps<EarnNodeT>) {
                   onChange={(apr) =>
                     updateNodeData<EarnNodeT['data']>(id, { apr })
                   }
-                  className="w-full bg-transparent px-2 py-1.5 text-sm text-text outline-none"
+                  className="w-full bg-transparent px-2 py-2 text-sm text-text outline-none"
                 />
-                <span className="pr-2 text-sm text-text-dim">%</span>
+                <span className="pr-2 font-mono text-sm text-text-muted">%</span>
               </div>
             </label>
           )}

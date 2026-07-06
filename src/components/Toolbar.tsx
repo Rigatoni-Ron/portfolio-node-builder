@@ -213,9 +213,9 @@ export function Toolbar() {
               <button
                 key={option.type}
                 onClick={() => addNodeOfType(option)}
-                className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-xs font-medium text-text-muted transition-colors hover:bg-surface-2 hover:text-text"
+                className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-[11px] font-medium text-text-muted transition-colors hover:bg-surface-2 hover:text-text"
               >
-                <option.icon size={14} className="text-text-dim" />
+                <option.icon size={14} className="text-text-muted" />
                 {option.label}
               </button>
             ))}
@@ -225,14 +225,14 @@ export function Toolbar() {
 
       {groupableCount >= 2 && (
         <>
-          <div className="h-5 w-px bg-border" />
+          <div className="h-4 w-px bg-border" />
           <button
             onClick={() =>
               groupNodes(
                 useGraphStore.getState().nodes.filter(groupable).map((n) => n.id),
               )
             }
-            className="rounded-lg px-3 py-1.5 text-xs font-medium text-accent transition-colors hover:bg-accent-soft"
+            className="rounded-lg px-3 py-2 text-[11px] font-medium text-accent transition-colors hover:bg-accent-soft"
           >
             Group ({groupableCount})
           </button>
@@ -243,14 +243,14 @@ export function Toolbar() {
 
       <button
         onClick={onClearAll}
-        className={`rounded-lg text-xs font-medium transition-colors ${
+        className={`rounded-lg text-[11px] font-medium transition-colors ${
           confirmClear
             ? 'bg-negative/15 text-negative'
             : 'text-text-muted hover:bg-negative/10 hover:text-negative'
         }`}
       >
         <AnimatedWidth>
-          <span className="block whitespace-nowrap px-3 py-1.5">
+          <span className="block whitespace-nowrap px-3 py-2">
             {confirmClear ? 'Are you sure?' : 'Clear all'}
           </span>
         </AnimatedWidth>

@@ -13,7 +13,7 @@ export function GroupNode({ id, data, selected }: NodeProps<GroupNodeT>) {
 
   return (
     <div className="relative h-full w-full">
-      <div className="absolute -top-8 left-0 flex items-center gap-1.5">
+      <div className="absolute -top-8 left-0 flex items-center gap-2">
         <div
           className="flex items-center rounded-md px-2 py-1"
           style={{ backgroundColor: `${color}26` }}
@@ -26,13 +26,13 @@ export function GroupNode({ id, data, selected }: NodeProps<GroupNodeT>) {
             placeholder="Section"
             spellCheck={false}
             style={{ color, width: `${Math.max(data.label.length, 7)}ch` }}
-            className="nodrag bg-transparent text-xs font-semibold outline-none placeholder:text-text-dim"
+            className="nodrag bg-transparent text-[11px] font-medium uppercase tracking-wider outline-none placeholder:text-text-muted"
           />
         </div>
 
         {selected && (
           <>
-            <div className="nodrag flex items-center gap-1.5 rounded-md border border-border bg-surface/95 px-2 py-1.5 shadow-lg">
+            <div className="nodrag flex items-center gap-2 rounded-md border border-border bg-surface/95 p-2 shadow-lg">
               {GROUP_COLORS.map((c) => (
                 <button
                   key={c}
@@ -53,7 +53,7 @@ export function GroupNode({ id, data, selected }: NodeProps<GroupNodeT>) {
             </div>
             <button
               onClick={() => ungroup(id)}
-              className="nodrag rounded-md border border-border bg-surface/95 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-text-dim shadow-lg transition-colors hover:text-negative"
+              className="nodrag rounded-md border border-border bg-surface/95 px-2 py-1 text-[11px] font-medium uppercase tracking-wider text-text-muted shadow-lg transition-colors hover:text-negative"
             >
               Ungroup
             </button>

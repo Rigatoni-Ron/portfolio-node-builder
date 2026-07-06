@@ -125,7 +125,7 @@ export function TickerSelect({ value, onChange }: Props) {
           if (!open) setOpen(true)
         }}
         onKeyDown={onKeyDown}
-        className="nodrag w-full rounded-md border border-border bg-surface-2 px-2 py-1.5 font-mono text-sm tracking-wider text-text outline-none focus:border-accent"
+        className="nodrag w-full rounded-md border border-border bg-surface-2 px-2 py-2 font-mono text-sm tracking-wider text-text outline-none focus:border-accent"
         placeholder={value ? undefined : 'Search ticker or name'}
       />
 
@@ -157,7 +157,7 @@ export function TickerSelect({ value, onChange }: Props) {
                     {t.symbol}
                   </span>
                   <span
-                    className={`rounded px-1 py-px text-[9px] font-medium uppercase tracking-wider ${TICKER_BADGE_CLASSES[t.type]}`}
+                    className={`rounded px-1 py-px text-[11px] font-medium uppercase tracking-wider ${TICKER_BADGE_CLASSES[t.type]}`}
                   >
                     {t.type}
                   </span>
@@ -165,7 +165,7 @@ export function TickerSelect({ value, onChange }: Props) {
                     {t.name}
                   </span>
                 </span>
-                <span className="mt-0.5 block text-[10px] leading-snug text-text-dim">
+                <span className="mt-1 block text-[11px] leading-snug text-text-muted">
                   {t.description}
                 </span>
               </button>
@@ -185,7 +185,7 @@ export function TickerSelect({ value, onChange }: Props) {
                 <span className="font-mono text-sm tracking-wider text-text">
                   {customSymbol}
                 </span>
-                <span className="mt-0.5 block text-[10px] leading-snug text-text-dim">
+                <span className="mt-1 block text-[11px] leading-snug text-text-muted">
                   Use custom ticker
                 </span>
               </button>
@@ -193,7 +193,7 @@ export function TickerSelect({ value, onChange }: Props) {
           )}
 
           {optionCount === 0 && (
-            <li className="px-3 py-2 text-[11px] text-text-dim">No matches</li>
+            <li className="px-3 py-2 text-[11px] text-text-muted">No matches</li>
           )}
         </ul>,
           document.body,

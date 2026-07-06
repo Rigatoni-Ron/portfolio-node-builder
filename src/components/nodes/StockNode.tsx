@@ -35,7 +35,7 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
           <div className={data.ticker ? 'grid grid-cols-2 gap-2' : ''}>
             <div>
               {data.ticker && (
-                <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
+                <span className="mb-1 block text-[11px] uppercase tracking-wider text-text-muted">
                   Ticker
                 </span>
               )}
@@ -49,11 +49,11 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
 
             {data.ticker && (
               <label className="block">
-                <span className="mb-1 block text-[10px] uppercase tracking-wider text-text-dim">
+                <span className="mb-1 block text-[11px] uppercase tracking-wider text-text-muted">
                   Allocation
                 </span>
                 <div className="flex items-center rounded-md border border-border bg-surface-2 focus-within:border-accent">
-                  <span className="pl-2 text-sm text-text-dim">$</span>
+                  <span className="pl-2 font-mono text-sm text-text-muted">$</span>
                   <NumberField
                     min={0}
                     step={100}
@@ -61,7 +61,7 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
                     onChange={(allocation) =>
                       updateNodeData<StockNodeT['data']>(id, { allocation })
                     }
-                    className="w-full bg-transparent px-2 py-1.5 text-sm text-text outline-none"
+                    className="w-full bg-transparent px-2 py-2 text-sm text-text outline-none"
                   />
                 </div>
               </label>
@@ -69,31 +69,31 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
           </div>
 
           {!data.ticker && (
-            <p className="px-1 pb-1 text-center text-[10px] leading-snug text-text-dim">
+            <p className="px-1 text-center text-[11px] leading-snug text-text-muted">
               Search and select a stock, ETF, or digital asset to get started
             </p>
           )}
 
           {info && (
-            <div className="rounded-md bg-surface-2/60 px-2 py-1.5">
-              <div className="flex items-baseline gap-1.5">
+            <div className="rounded-md bg-surface-2/60 p-2">
+              <div className="flex items-baseline gap-1">
                 <span className="truncate text-[11px] font-medium text-text-muted">
                   {info.name}
                 </span>
                 <span
-                  className={`shrink-0 rounded px-1 py-px text-[9px] font-medium uppercase tracking-wider ${TICKER_BADGE_CLASSES[info.type]}`}
+                  className={`shrink-0 rounded px-1 py-px text-[11px] font-medium uppercase tracking-wider ${TICKER_BADGE_CLASSES[info.type]}`}
                 >
                   {info.type}
                 </span>
               </div>
-              <p className="mt-0.5 text-[10px] leading-snug text-text-dim">
+              <p className="mt-1 text-[11px] leading-snug text-text-muted">
                 {info.description}
               </p>
             </div>
           )}
 
           {feedsPortfolio && (
-            <p className="rounded-md border border-negative/40 bg-negative/10 px-2 py-1.5 text-[10px] leading-snug text-negative">
+            <p className="rounded-md border border-negative/40 bg-negative/10 p-2 text-[11px] leading-snug text-negative">
               An asset can't feed a Portfolio directly — connect it to a
               Timeline node instead.
             </p>

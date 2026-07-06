@@ -43,7 +43,7 @@ export function TimelineNode({ id, data, selected }: NodeProps<TimelineNodeT>) {
       <AnimatedHeight>
         <div className="space-y-3 p-3">
           <div>
-            <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-text-dim">
+            <span className="mb-1 block text-[11px] uppercase tracking-wider text-text-muted">
               Mode
             </span>
             <Segmented
@@ -56,7 +56,7 @@ export function TimelineNode({ id, data, selected }: NodeProps<TimelineNodeT>) {
           </div>
 
           <div>
-            <span className="mb-1.5 block text-[10px] uppercase tracking-wider text-text-dim">
+            <span className="mb-1 block text-[11px] uppercase tracking-wider text-text-muted">
               {data.mode === 'backtest' ? 'Past' : 'Next'}
             </span>
             <Segmented
@@ -69,7 +69,7 @@ export function TimelineNode({ id, data, selected }: NodeProps<TimelineNodeT>) {
           </div>
 
           {edgeIgnored && (
-            <p className="rounded-md border border-negative/40 bg-negative/10 px-2 py-1.5 text-[10px] leading-snug text-negative">
+            <p className="rounded-md border border-negative/40 bg-negative/10 p-2 text-[11px] leading-snug text-negative">
               That Portfolio already reads another Timeline — this connection
               is ignored.
             </p>

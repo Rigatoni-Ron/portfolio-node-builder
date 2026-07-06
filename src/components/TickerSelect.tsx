@@ -125,7 +125,7 @@ export function TickerSelect({ value, onChange }: Props) {
           if (!open) setOpen(true)
         }}
         onKeyDown={onKeyDown}
-        className="nodrag w-full rounded-md border border-border bg-surface-2 px-2 py-2 font-mono text-sm tracking-wider text-text outline-none focus:border-accent"
+        className="nodrag w-full rounded-md border border-border bg-surface-2 px-2 py-2 text-sm tracking-wider text-text outline-none focus:border-accent"
         placeholder={value ? undefined : 'Search ticker or name'}
       />
 
@@ -153,7 +153,7 @@ export function TickerSelect({ value, onChange }: Props) {
                 }`}
               >
                 <span className="flex items-baseline gap-2">
-                  <span className="font-mono text-sm tracking-wider text-text">
+                  <span className="text-sm tracking-wider text-text">
                     {t.symbol}
                   </span>
                   <span
@@ -182,7 +182,7 @@ export function TickerSelect({ value, onChange }: Props) {
                   active === results.length ? 'bg-accent-soft' : ''
                 }`}
               >
-                <span className="font-mono text-sm tracking-wider text-text">
+                <span className="text-sm tracking-wider text-text">
                   {customSymbol}
                 </span>
                 <span className="mt-1 block text-[11px] leading-snug text-text-muted">

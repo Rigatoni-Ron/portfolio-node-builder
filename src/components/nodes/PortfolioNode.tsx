@@ -228,9 +228,7 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
                           key={p.ticker}
                           className="flex items-center justify-between text-[11px]"
                         >
-                          <span className="font-mono text-text">
-                            {p.ticker}
-                          </span>
+                          <span className="text-text-muted">{p.ticker}</span>
                           <div className="flex items-center gap-2">
                             <span
                               className={`font-mono tabular-nums ${

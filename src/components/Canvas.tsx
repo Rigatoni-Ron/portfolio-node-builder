@@ -70,6 +70,10 @@ function CanvasInner() {
         panOnDrag={tool === 'hand' ? true : [1, 2]}
         selectionOnDrag={tool === 'select'}
         selectionMode={SelectionMode.Partial}
+        // Shift-click (or Cmd/Ctrl-click) adds a node to the selection.
+        // Box-select is handled by selectionOnDrag, so no keyed box-select.
+        multiSelectionKeyCode={['Shift', 'Meta', 'Control']}
+        selectionKeyCode={null}
         nodesDraggable={tool !== 'hand'}
         elementsSelectable={tool !== 'hand'}
         panOnScroll

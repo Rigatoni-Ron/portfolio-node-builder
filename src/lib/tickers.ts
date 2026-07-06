@@ -13,10 +13,10 @@ export type TickerInfo = {
 
 // Badge tint per asset class, shared by the picker and the asset node
 export const TICKER_BADGE_CLASSES: Record<TickerType, string> = {
-  ETF: 'bg-accent-soft text-accent',
-  Stock: 'bg-surface-2 text-text-muted',
-  Crypto: 'bg-orange-500/15 text-orange-400',
-  Commodity: 'bg-yellow-500/15 text-yellow-500',
+  ETF: 'bg-accent-soft text-accent border border-accent/25',
+  Stock: 'bg-surface-2 text-text-muted border border-text-muted/20',
+  Crypto: 'bg-orange-500/15 text-orange-400 border border-orange-500/25',
+  Commodity: 'bg-yellow-500/15 text-yellow-500 border border-yellow-500/25',
 }
 
 export const TICKERS: TickerInfo[] = [

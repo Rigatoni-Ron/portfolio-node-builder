@@ -81,7 +81,7 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
                   {info.name}
                 </span>
                 <span
-                  className={`shrink-0 rounded px-1 py-px text-[11px] font-medium ${TICKER_BADGE_CLASSES[info.type]}`}
+                  className={`shrink-0 rounded-full px-2 py-px text-[11px] font-medium ${TICKER_BADGE_CLASSES[info.type]}`}
                 >
                   {info.type}
                 </span>

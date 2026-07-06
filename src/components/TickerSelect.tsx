@@ -157,7 +157,7 @@ export function TickerSelect({ value, onChange }: Props) {
                     {t.symbol}
                   </span>
                   <span
-                    className={`rounded px-1 py-px text-[11px] font-medium ${TICKER_BADGE_CLASSES[t.type]}`}
+                    className={`rounded-full px-2 py-px text-[11px] font-medium ${TICKER_BADGE_CLASSES[t.type]}`}
                   >
                     {t.type}
                   </span>

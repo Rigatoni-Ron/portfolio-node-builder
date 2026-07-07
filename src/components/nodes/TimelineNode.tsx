@@ -31,7 +31,7 @@ export function TimelineNode({ id, data, selected }: NodeProps<TimelineNodeT>) {
   return (
     <div
       className={`w-60 rounded-xl border bg-surface shadow-lg transition-colors ${
-        selected ? 'border-accent' : 'border-border'
+        selected ? 'border-accent' : 'border-border hover:border-border-strong'
       }`}
     >
       <div className="border-b border-border px-3 py-2">

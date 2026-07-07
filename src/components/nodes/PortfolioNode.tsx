@@ -159,7 +159,7 @@ export function PortfolioNode({ id, selected }: NodeProps<PortfolioNodeT>) {
   return (
     <div
       className={`w-72 rounded-xl border bg-surface shadow-lg transition-colors ${
-        selected ? 'border-accent' : 'border-border'
+        selected ? 'border-accent' : 'border-border hover:border-border-strong'
       }`}
     >
       <div className="relative border-b border-border px-3 py-2">

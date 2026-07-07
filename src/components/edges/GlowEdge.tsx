@@ -42,16 +42,14 @@ export function GlowEdge({
   })
 
   if (!functional) {
+    // Stroke color lives in CSS (.edge-inert) so a :hover rule can brighten it
     return (
       <BaseEdge
         id={id}
         path={edgePath}
         markerEnd={markerEnd}
-        style={{
-          ...style,
-          stroke: 'rgba(239, 68, 68, 0.55)',
-          strokeDasharray: '6 4',
-        }}
+        className="edge-inert"
+        style={{ ...style, strokeDasharray: '6 4' }}
       />
     )
   }

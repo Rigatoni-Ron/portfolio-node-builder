@@ -21,7 +21,7 @@ export function StockNode({ id, data, selected }: NodeProps<StockNodeT>) {
   return (
     <div
       className={`w-64 rounded-xl border bg-surface shadow-lg transition-colors ${
-        selected ? 'border-accent' : 'border-border'
+        selected ? 'border-accent' : 'border-border hover:border-border-strong'
       }`}
     >
       <div className="border-b border-border px-3 py-2">

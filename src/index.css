@@ -93,10 +93,21 @@ input[type="number"]::-webkit-outer-spin-button {
 .react-flow .react-flow__edge-path {
   stroke: var(--color-border);
   stroke-width: 1.5;
+  transition: stroke 0.15s ease;
+}
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--color-border-strong);
 }
 .react-flow__edge.selected .react-flow__edge-path,
 .react-flow__edge:focus .react-flow__edge-path {
   stroke: var(--color-accent);
+}
+/* Inert (invalid) wires: dashed red, brighter on hover */
+.react-flow__edge-path.edge-inert {
+  stroke: rgba(239, 68, 68, 0.55);
+}
+.react-flow__edge:hover .react-flow__edge-path.edge-inert {
+  stroke: rgba(239, 68, 68, 0.9);
 }
 .react-flow .react-flow__handle {
   width: 16px;

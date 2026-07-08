@@ -17,6 +17,7 @@ import { EarnNode } from './nodes/EarnNode'
 import { GroupNode } from './nodes/GroupNode'
 import { GlowEdge } from './edges/GlowEdge'
 import { Toolbar } from './Toolbar'
+import { IntroTour } from './IntroTour'
 
 const nodeTypes = {
   stock: StockNode,
@@ -87,6 +88,7 @@ function CanvasInner() {
         />
         <Controls showInteractive={false} />
       </ReactFlow>
+      <IntroTour />
     </div>
   )
 }

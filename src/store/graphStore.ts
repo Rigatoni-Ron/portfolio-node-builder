@@ -33,36 +33,38 @@ type GraphState = {
   resetGraph: () => void
 }
 
+// Starter graph for first-time visitors: one of each node, fully wired
+// along the flow so the tool demonstrates itself.
 const initialNodes: AppNode[] = [
   {
     id: 'stock-1',
     type: 'stock',
-    position: { x: 80, y: 120 },
-    data: { ticker: 'VOO', allocation: 5000 },
+    position: { x: 80, y: 200 },
+    data: { ticker: 'VOO', allocation: 1000 },
   },
   {
-    id: 'stock-2',
-    type: 'stock',
-    position: { x: 80, y: 280 },
-    data: { ticker: 'AAPL', allocation: 2500 },
+    id: 'earn-1',
+    type: 'earn',
+    position: { x: 420, y: 220 },
+    data: { strategy: 'yield', apr: 4 },
   },
   {
     id: 'timeline-1',
     type: 'timeline',
-    position: { x: 480, y: 180 },
+    position: { x: 740, y: 200 },
     data: { mode: 'backtest', timeframe: '5Y' },
   },
   {
     id: 'portfolio-1',
     type: 'portfolio',
-    position: { x: 860, y: 180 },
+    position: { x: 1060, y: 110 },
     data: {},
   },
 ]
 
 const initialEdges: AppEdge[] = [
-  { id: 'e1', source: 'stock-1', target: 'timeline-1' },
-  { id: 'e2', source: 'stock-2', target: 'timeline-1' },
+  { id: 'e1', source: 'stock-1', target: 'earn-1' },
+  { id: 'e2', source: 'earn-1', target: 'timeline-1' },
   { id: 'e3', source: 'timeline-1', target: 'portfolio-1' },
 ]
 

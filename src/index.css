@@ -102,6 +102,30 @@ input[type="number"]::-webkit-outer-spin-button {
 .react-flow__edge:focus .react-flow__edge-path {
   stroke: var(--color-accent);
 }
+/* Intro tour entrances: nodes fade in, wires draw in from their source.
+   Only opacity animates on the node wrapper — transform would fight React
+   Flow's positioning translate. */
+@keyframes node-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+.react-flow__node.node-enter {
+  animation: node-fade-in 0.35s ease-out;
+}
+@keyframes edge-draw-in {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.react-flow__edge.edge-enter .react-flow__edge-path {
+  stroke-dasharray: 1000 1000;
+  animation: edge-draw-in 0.7s ease-out forwards;
+}
+
 /* Inert (invalid) wires: dashed red, brighter on hover */
 .react-flow__edge-path.edge-inert {
   stroke: rgba(239, 68, 68, 0.55);

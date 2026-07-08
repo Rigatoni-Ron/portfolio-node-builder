@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { useReactFlow, useStore } from '@xyflow/react'
 import { X } from 'lucide-react'
 import { useGraphStore } from '../store/graphStore'
@@ -39,8 +39,52 @@ const STEPS: {
   },
 ]
 
-// One-time onboarding: a popover walks through each node type, panning to
-// and highlighting the matching node. Dismissal persists in localStorage.
+// --- Tour visibility helpers ------------------------------------------------
+// The tour stages the graph: everything starts hidden, each step reveals the
+// next node (and the wire connecting it to what's already visible). These
+// flags are presentation-only — the store strips them from persistence.
+
+function hideAll() {
+  useGraphStore.setState((s) => ({
+    nodes: s.nodes.map((n) => ({ ...n, hidden: true }) as AppNode),
+    edges: s.edges.map((e) => ({ ...e, hidden: true })),
+  }))
+}
+
+function revealType(type: NonNullable<AppNode['type']>) {
+  useGraphStore.setState((s) => {
+    const target = s.nodes.find((n) => n.type === type && !n.parentId)
+    if (!target) return {}
+    const visible = new Set(
+      s.nodes.filter((n) => !n.hidden || n.id === target.id).map((n) => n.id),
+    )
+    return {
+      nodes: s.nodes.map((n) =>
+        n.id === target.id
+          ? ({ ...n, hidden: false, className: 'node-enter' } as AppNode)
+          : n,
+      ),
+      edges: s.edges.map((e) =>
+        e.hidden && visible.has(e.source) && visible.has(e.target)
+          ? { ...e, hidden: false, className: 'edge-enter' }
+          : e,
+      ),
+    }
+  })
+}
+
+function revealAll() {
+  useGraphStore.setState((s) => ({
+    nodes: s.nodes.map(
+      ({ className: _c, ...n }) => ({ ...n, hidden: false }) as AppNode,
+    ),
+    edges: s.edges.map(({ className: _c, ...e }) => ({ ...e, hidden: false })),
+  }))
+}
+
+// One-time onboarding: the canvas starts clean, and each step drops in the
+// next node with its wire drawing in, spotlights it, and dims the rest.
+// Dismissal reveals everything and persists in localStorage.
 export function IntroTour() {
   const [visible, setVisible] = useState(() => {
     try {
@@ -54,20 +98,38 @@ export function IntroTour() {
   const [tx, ty, zoom] = useStore((s) => s.transform)
   const nodes = useGraphStore((s) => s.nodes)
 
+  // Hide the graph before first paint so the welcome step sits on a clean canvas
+  useLayoutEffect(() => {
+    if (visible) hideAll()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const current = STEPS[step]
   const target = current.type
-    ? nodes.find((n) => n.type === current.type && !n.parentId)
+    ? nodes.find((n) => n.type === current.type && !n.parentId && !n.hidden)
     : undefined
 
   useEffect(() => {
     if (!visible || !target) return
-    fitView({ nodes: [{ id: target.id }], padding: 0.6, duration: 400, maxZoom: 1 })
+    // Give the just-revealed node a frame to mount before fitting to it
+    const t = setTimeout(
+      () =>
+        fitView({
+          nodes: [{ id: target.id }],
+          padding: 0.6,
+          duration: 400,
+          maxZoom: 1,
+        }),
+      120,
+    )
+    return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, visible])
 
   if (!visible) return null
 
   const dismiss = () => {
+    revealAll()
     try {
       localStorage.setItem(SEEN_KEY, '1')
     } catch {
@@ -75,7 +137,15 @@ export function IntroTour() {
     }
     setVisible(false)
   }
-  const next = () => (step >= STEPS.length - 1 ? dismiss() : setStep(step + 1))
+  const next = () => {
+    if (step >= STEPS.length - 1) {
+      dismiss()
+      return
+    }
+    const upcoming = STEPS[step + 1]
+    if (upcoming.type) revealType(upcoming.type)
+    setStep(step + 1)
+  }
 
   // Screen-space rect of the highlighted node, tracking pan/zoom live
   const rect = target
@@ -104,8 +174,9 @@ export function IntroTour() {
     : { left: '50%', top: '30%', transform: 'translateX(-50%)', width: 300 }
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-20">
-      {rect && (
+    <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
+      {rect ? (
+        // Spotlight: the giant shadow dims everything outside the ring
         <div
           className="absolute rounded-2xl border-2 border-accent transition-all duration-300 ease-out"
           style={{
@@ -113,9 +184,12 @@ export function IntroTour() {
             top: rect.top - 8,
             width: rect.width + 16,
             height: rect.height + 16,
-            boxShadow: '0 0 0 4px rgba(59, 130, 246, 0.15)',
+            boxShadow:
+              '0 0 0 4px rgba(59, 130, 246, 0.15), 0 0 0 200vmax rgba(0, 0, 0, 0.55)',
           }}
         />
+      ) : (
+        <div className="absolute inset-0 bg-black/40" />
       )}
 
       <div

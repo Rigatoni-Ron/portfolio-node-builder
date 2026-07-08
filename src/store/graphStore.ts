@@ -14,6 +14,15 @@ import { FLOW_ORDER, nodeSize } from '../lib/placement'
 
 export type CanvasTool = 'select' | 'hand'
 
+function stripTourFlags<T extends { hidden?: boolean; className?: string }>(
+  item: T,
+): T {
+  const copy = { ...item }
+  delete copy.hidden
+  delete copy.className
+  return copy
+}
+
 type GraphState = {
   nodes: AppNode[]
   edges: AppEdge[]
@@ -299,7 +308,12 @@ export const useGraphStore = create<GraphState>()(
     }),
     {
       name: 'portfolio-node-builder-graph',
-      partialize: (state) => ({ nodes: state.nodes, edges: state.edges }),
+      // Strip tour-only presentation flags (hidden, className) so a refresh
+      // mid-intro-tour can never persist a half-hidden graph.
+      partialize: (state) => ({
+        nodes: state.nodes.map(stripTourFlags),
+        edges: state.edges.map(stripTourFlags),
+      }),
       version: 2,
       // v2 collapsed Earn strategies stake/lend/borrow into a single "yield"
       migrate: (persisted, version) => {

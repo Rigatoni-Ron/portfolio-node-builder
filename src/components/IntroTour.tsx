@@ -175,6 +175,9 @@ export function IntroTour() {
       /* private mode — just close */
     }
     setVisible(false)
+    // Recenter on the whole graph once the just-revealed nodes have mounted
+    // and been measured (fitView skips unmeasured nodes)
+    setTimeout(() => fitView({ padding: 0.15, duration: 500 }), 150)
   }
   const next = () => {
     if (step >= STEPS.length - 1) {

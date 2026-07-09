@@ -64,7 +64,7 @@ function CanvasInner() {
         defaultEdgeOptions={defaultEdgeOptions}
         connectionRadius={36}
         fitView
-        proOptions={{ hideAttribution: false }}
+        proOptions={{ hideAttribution: true }}
         // Figma-style controls: left-drag marquee-selects (select tool) or
         // pans (hand tool), trackpad scroll pans, pinch zooms, middle/right
         // mouse button always pans

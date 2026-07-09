@@ -5,7 +5,15 @@ import { useGraphStore } from '../store/graphStore'
 import { nodeSize } from '../lib/placement'
 import type { AppNode } from '../lib/types'
 
-const SEEN_KEY = 'pnb:intro-done'
+export const INTRO_SEEN_KEY = 'pnb:intro-done'
+
+export function hasSeenIntro(): boolean {
+  try {
+    return !!localStorage.getItem(INTRO_SEEN_KEY)
+  } catch {
+    return true
+  }
+}
 
 const STEPS: {
   type: AppNode['type'] | null
@@ -88,19 +96,50 @@ function revealAll() {
 export function IntroTour() {
   const [visible, setVisible] = useState(() => {
     try {
-      return !localStorage.getItem(SEEN_KEY)
+      return !hasSeenIntro()
     } catch {
       return false
     }
   })
   const [step, setStep] = useState(0)
-  const { fitView } = useReactFlow()
+  const { fitView, setViewport } = useReactFlow()
   const [tx, ty, zoom] = useStore((s) => s.transform)
   const nodes = useGraphStore((s) => s.nodes)
 
   // Hide the graph before first paint so the welcome step sits on a clean canvas
   useLayoutEffect(() => {
     if (visible) hideAll()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Park the viewport where the first node will appear, so the first reveal
+  // doesn't yank the camera across the canvas. Runs after React Flow has
+  // initialized (setViewport is a no-op before that), hence the double rAF.
+  useEffect(() => {
+    if (!visible) return
+    const firstType = STEPS.find((s) => s.type)?.type
+    const first = useGraphStore
+      .getState()
+      .nodes.find((n) => n.type === firstType && !n.parentId)
+    if (!first) return
+    let raf2 = 0
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        const size = nodeSize(first)
+        setViewport(
+          {
+            x: window.innerWidth / 2 - (first.position.x + size.width / 2),
+            y: window.innerHeight / 2 - (first.position.y + size.height / 2),
+            zoom: 1,
+          },
+          { duration: 0 },
+        )
+      })
+    })
+    return () => {
+      cancelAnimationFrame(raf1)
+      cancelAnimationFrame(raf2)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -131,7 +170,7 @@ export function IntroTour() {
   const dismiss = () => {
     revealAll()
     try {
-      localStorage.setItem(SEEN_KEY, '1')
+      localStorage.setItem(INTRO_SEEN_KEY, '1')
     } catch {
       /* private mode — just close */
     }
@@ -176,9 +215,11 @@ export function IntroTour() {
   return (
     <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
       {rect ? (
-        // Spotlight: the giant shadow dims everything outside the ring
+        // Spotlight: the giant shadow dims everything outside the ring.
+        // No CSS transition — the ring tracks the viewport transform per
+        // frame, and layering a transition on top reads as rubber-banding.
         <div
-          className="absolute rounded-2xl border-2 border-accent transition-all duration-300 ease-out"
+          className="absolute rounded-2xl border-2 border-accent"
           style={{
             left: rect.left - 8,
             top: rect.top - 8,

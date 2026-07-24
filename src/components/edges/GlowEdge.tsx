@@ -1,6 +1,24 @@
 import { BaseEdge, getBezierPath, useStore, type EdgeProps } from '@xyflow/react'
 import { isFunctionalEdge } from '../../lib/edgeRules'
 
+const PULSE_DUR = 2.4 // seconds per trip along the wire
+
+// SMIL animations start when their element mounts, so edges created at
+// different moments drift out of phase. Instead, schedule each animation to
+// have begun at the most recent PULSE_DUR boundary on the svg's shared
+// timeline — every bead ends up on the same global clock and they all
+// arrive at their nodes in unison.
+function syncToGlobalPhase(el: SVGElement | null) {
+  const anim = el as SVGAnimationElement | null
+  const svg = anim?.ownerSVGElement
+  if (!anim || !svg) return
+  try {
+    anim.beginElementAt(-(svg.getCurrentTime() % PULSE_DUR))
+  } catch {
+    anim.beginElement()
+  }
+}
+
 // Standard bezier edge with a pulse of light traveling along it — a soft
 // blurred halo under a bright core, both riding the path via SMIL
 // animateMotion. Edges the portfolio math ignores (e.g. stock→portfolio)
@@ -63,14 +81,26 @@ export function GlowEdge({
         opacity={0.25}
         style={{ filter: 'blur(4px)' }}
       >
-        <animateMotion dur="2.4s" repeatCount="indefinite" path={edgePath} />
+        <animateMotion
+          ref={syncToGlobalPhase}
+          begin="indefinite"
+          dur={`${PULSE_DUR}s`}
+          repeatCount="indefinite"
+          path={edgePath}
+        />
       </circle>
       <circle
         r={2}
         fill="#dbeafe"
         style={{ filter: 'drop-shadow(0 0 4px var(--color-accent))' }}
       >
-        <animateMotion dur="2.4s" repeatCount="indefinite" path={edgePath} />
+        <animateMotion
+          ref={syncToGlobalPhase}
+          begin="indefinite"
+          dur={`${PULSE_DUR}s`}
+          repeatCount="indefinite"
+          path={edgePath}
+        />
       </circle>
     </>
   )

@@ -17,7 +17,6 @@ import { EarnNode } from './nodes/EarnNode'
 import { GroupNode } from './nodes/GroupNode'
 import { GlowEdge } from './edges/GlowEdge'
 import { Toolbar } from './Toolbar'
-import { IntroTour, hasSeenIntro } from './IntroTour'
 
 const nodeTypes = {
   stock: StockNode,
@@ -63,10 +62,7 @@ function CanvasInner() {
         edgeTypes={edgeTypes}
         defaultEdgeOptions={defaultEdgeOptions}
         connectionRadius={36}
-        // During a pending intro tour the canvas starts hidden — an init
-        // fitView on zero visible nodes degenerates to max-zoom at origin,
-        // so the tour parks the viewport itself instead.
-        fitView={hasSeenIntro()}
+        fitView
         proOptions={{ hideAttribution: true }}
         // Figma-style controls: left-drag marquee-selects (select tool) or
         // pans (hand tool), trackpad scroll pans, pinch zooms, middle/right
@@ -91,7 +87,6 @@ function CanvasInner() {
         />
         <Controls showInteractive={false} />
       </ReactFlow>
-      <IntroTour />
     </div>
   )
 }

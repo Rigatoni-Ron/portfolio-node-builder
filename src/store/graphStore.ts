@@ -43,30 +43,47 @@ type GraphState = {
 }
 
 // Starter graph for first-time visitors: one of each node, fully wired
-// along the flow so the tool demonstrates itself.
+// along the flow (asset → earn → timeline → portfolio) and bundled into a
+// single group so the tool demonstrates itself. Child positions are relative
+// to the group's origin, and the group must precede its children in the array.
+// Child positions are relative to the group's origin. All four share the same
+// y so their containers are top-aligned, and the group is sized to fully wrap
+// the tallest child (the Portfolio node) plus padding on every side.
 const initialNodes: AppNode[] = [
+  {
+    id: 'group-1',
+    type: 'group',
+    position: { x: 64, y: 94 },
+    width: 1312,
+    height: 496,
+    data: { label: 'Portfolio 1', color: DEFAULT_GROUP_COLOR },
+  },
   {
     id: 'stock-1',
     type: 'stock',
-    position: { x: 80, y: 200 },
+    parentId: 'group-1',
+    position: { x: 48, y: 48 },
     data: { ticker: 'VOO', allocation: 1000 },
   },
   {
     id: 'earn-1',
     type: 'earn',
-    position: { x: 420, y: 220 },
+    parentId: 'group-1',
+    position: { x: 368, y: 48 },
     data: { strategy: 'yield', apr: 4 },
   },
   {
     id: 'timeline-1',
     type: 'timeline',
-    position: { x: 740, y: 200 },
+    parentId: 'group-1',
+    position: { x: 672, y: 48 },
     data: { mode: 'backtest', timeframe: '5Y' },
   },
   {
     id: 'portfolio-1',
     type: 'portfolio',
-    position: { x: 1060, y: 110 },
+    parentId: 'group-1',
+    position: { x: 976, y: 48 },
     data: {},
   },
 ]
@@ -314,16 +331,15 @@ export const useGraphStore = create<GraphState>()(
         nodes: state.nodes.map(stripTourFlags),
         edges: state.edges.map(stripTourFlags),
       }),
-      version: 2,
-      // v2 collapsed Earn strategies stake/lend/borrow into a single "yield"
+      version: 5,
+      // v3 reseeded the starter graph as a single pre-grouped chain (replacing
+      // the old intro-tour flow); v4 top-aligned the children and resized the
+      // group to fully wrap them; v5 renamed the group to "Portfolio 1". Any
+      // earlier save reseeds so it picks up the corrected grouped default.
       migrate: (persisted, version) => {
         const state = persisted as { nodes?: AppNode[]; edges?: AppEdge[] }
-        if (version < 2 && state.nodes) {
-          state.nodes = state.nodes.map((n) =>
-            n.type === 'earn' && n.data.strategy !== 'hold'
-              ? ({ ...n, data: { ...n.data, strategy: 'yield' } } as AppNode)
-              : n,
-          )
+        if (version < 5) {
+          return { nodes: initialNodes, edges: initialEdges }
         }
         return state
       },
